@@ -2,4 +2,10 @@ import numpy
 
 import math
 
-hellp
+class Spline:
+
+    def __init__(self, ):
+    def spline(self, *coord):
+
+
+    def basis(self):
