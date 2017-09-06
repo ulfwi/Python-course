@@ -1,26 +1,34 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 import math
+
+k = 3  # degree of spline
 
 class Spline:
 
 
     """
     u are node points
-    d are deBoor points
+    d are deBoor points (in matrix form)
     """
-    def __init__(self, u, d):
-        self.u = u
+    def __init__(self, d = None, N = 100):
         self.d = d
+        # Create uniform knots, length of d+order of curve
+        self.u = np.arange(len(self.d) - k + 1)
+        self.u = np.append([self.u[0], self.u[0], self.u[0]], self.u)
+        self.u = np.append(self.u, [self.u[-1], self.u[-1], self.u[-1]])
+        # Create parameter vector t of length N
+        self.t = np.arange(self.u[0], self.u[-1], self.u[-1]/N)
 
-    # """
-    # x, y are function values
-    # u are node points
-    # """
-    # def __init__(self, u, x, y):
-    #     self.u = u
-    #     self.x = x
-    #     self.y = y
+    @classmethod
+    def interpolation(cls, x, y):
+        #d =
+        return cls(d)
+
+    @classmethod
+    def ctrlPoints(cls, d):
+        return cls(d)
 
     def spline(self):
         spline_vec = np.array([])
@@ -28,9 +36,13 @@ class Spline:
         return spline_vec
 
 
-    # Creates basis functions N_i^k
-    def basis(self, x, i, k=3):
-        # cubic splines only defined on [u2,u_K-2]
+    def div(self,x,y):
+        if y == 0:
+            return 0
+        return x / y
+
+    # Returns basis function N_i^3 value in x
+    def basis(self, x, i):
         # check if nodes coincide. use 0/0=0
         if k == 0:
             if self.u[i-1] <= x < self.u[i]:
@@ -38,8 +50,8 @@ class Spline:
             else:
                 return 0
         else:
-            return (x - self.u[i-1])/(self.u[i+k-1] - self.u[i-1]) * self.basis(x, i, k-1) \
-                    + (self.u[i+k] - x)/(self.u[i+k] - self.u[i]) * self.basis(x, i+1, k-1)
+            return self.div((x - self.u[i-1]),(self.u[i+k-1] - self.u[i-1])) * self.basis(x, i, k-1) \
+                    + self.div((self.u[i+k] - x),(self.u[i+k] - self.u[i])) * self.basis(x, i+1, k-1)
 
 
     # Recursively evaluate the spline /deBoor algorithm
@@ -47,6 +59,20 @@ class Spline:
         return 0
 
 
-    def plot(self):
-        xplot = np.arange(self.x[0], self.x[-1], self.step)
+    # polygon: boolean, plot if true
+    def plotSpline(self, polygon):
+        if polygon:
+            plt.plot(self.d[:,0], self.d[:,1],'r-*')
+        s = self.spline()
+        plt.plot(s[:,0],s[:,1],'b')
+
+
+
+
+
+
+
+
+
+
 
