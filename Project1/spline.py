@@ -29,6 +29,19 @@ class Spline:
         return spline_vec
 
 
+    # Recursively evaluate the spline /deBoor algorithm
+    def deBoorPoints(self, u_index):
+        u_short = self.u[2:-2]
+        d = np.array([np.zeros(4)])
+        alpha = np.array([np.zeros(4)])
+        for i in range(0, np.len(d)-1):
+            d[i] = self.c[u_index-3+i]
+            alpha[i] = u[u_index] -
+        #return d?
+
+        # HUR VÄLJS CONTROL POINTS?? KOLLA MER PÅ DET.
+
+
     # Creates basis functions N_i^k
     def basis(self, x, i, k=3):
         # cubic splines only defined on [u2,u_K-2]
@@ -41,19 +54,6 @@ class Spline:
         else:
             return (x - self.u[i-1])/(self.u[i+k-1] - self.u[i-1]) * self.basis(x, i, k-1) \
                     + (self.u[i+k] - x)/(self.u[i+k] - self.u[i]) * self.basis(x, i+1, k-1)
-
-
-    # Recursively evaluate the spline /deBoor algorithm
-    def deBoorPoints(self, u_index):
-        u_short = self.u[2:-2]
-        d = np.array([np.zeros(4)])
-        alpha = np.array([np.zeros(4)])
-        for i in range(0, np.len(d)-1):
-            d[i] = self.c[u_index-3+i]
-            alpha[i] = u[u_index] -
-        #return d?
-
-        # HUR VÄLJS CONTROL POINTS?? KOLLA MER PÅ DET.
 
 
     def plot(self):
