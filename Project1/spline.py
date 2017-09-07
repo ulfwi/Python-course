@@ -10,30 +10,21 @@ class Spline:
 
     """
     u are node points
-    d are deBoor points (in matrix form)
+    d are deBoor points
+    N length of parameter vector
     """
-    def __init__(self, d = None, N = 100):
+    def __init__(self, d, u, N = 100):
         self.d = d
-        # Create uniform knots, length of d+order of curve
-        self.u = np.arange(len(self.d) - k + 1)
-        self.u = np.append([self.u[0], self.u[0], self.u[0]], self.u)
-        self.u = np.append(self.u, [self.u[-1], self.u[-1], self.u[-1]])
+        self.u = u
         # Create parameter vector t of length N
         self.t = np.arange(self.u[0], self.u[-1], self.u[-1]/N)
 
     @classmethod
-    def interpolation(cls, x, y):
-        #d =
-        return cls(d)
+    def interpolation(cls, x, y, u, N = 100):
+        d = np.array([])
 
-    @classmethod
-    def ctrlPoints(cls, d):
-        return cls(d)
 
-    def spline(self):
-        spline_vec = np.array([])
-        #deBoor
-        return spline_vec
+        return cls(d)
 
 
     def div(self,x,y):
@@ -53,10 +44,47 @@ class Spline:
             return self.div((x - self.u[i-1]),(self.u[i+k-1] - self.u[i-1])) * self.basis(x, i, k-1) \
                     + self.div((self.u[i+k] - x),(self.u[i+k] - self.u[i])) * self.basis(x, i+1, k-1)
 
+    def spline(self):
+        spline_vec = np.array([])
+        for t_point in range(self.t.shape):
+            spline_vec[t_point] = self.de_Boor_points(self.t[t_point], 1)
+        return spline_vec
 
-    # Recursively evaluate the spline /deBoor algorithm
-    def deBoor(self):
-        return 0
+    '''
+    Recursively evaluate the spline /deBoor algorithm name Blossom algorithm?
+    t_point: is s(t_point) (u in lecture notes), s(t_point) defined at u[2:-2]
+    d_choice: d given or calculated by interpolation with given (x,y)
+    '''
+
+    def de_Boor_points(self, t_point, d_choice):
+        # Find hot interval
+        index = (t_point < self.u).argmax() - 1  # u_I
+        # Select corresponding control points d_i
+        if (d_choice == 1):
+            d_org = self.d_given(t_point, index)
+        if (d_choice == 2):
+            d_org = self.d_interpolation(t_point, index)
+        alpha = (self.u[index + 1] - t_point) / (self.u[index + 1] - self.u[index - 2])
+
+        # Blossom recursion, sec for second interpolation etc
+        d_sec = [alpha * d_org[index - 2 + i] + (1 - alpha) * d_org[index - 1 + i] for i in range(d_org.shape[0] - 1)]
+        d_thr = [alpha * d_sec[index - 2 + i] + (1 - alpha) * d_sec[index - 1 + i] for i in range(d_sec.shape[0] - 1)]
+        d_fou = [alpha * d_thr[index - 2 + i] + (1 - alpha) * d_thr[index - 1 + i] for i in range(d_thr.shape[0] - 1)]
+
+        return d_fou  # s(t)
+
+    '''
+    Returns surrounding d-points for index-1 < t_point < index (??, tänk lute
+    '''
+
+    def d_given(self, index):
+        # Select corresponding control points d_i
+        d_org = [self.d[index - 2 + i] for i in range(4)]
+        return d_org
+
+    def d_interpolation(self, index):
+        ...
+        return d_org
 
 
     # polygon: boolean, plot if true
