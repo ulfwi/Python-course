@@ -1,6 +1,10 @@
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import scipy.linalg as linalg
+
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 import math
 
@@ -77,8 +81,11 @@ class Spline:
         ind = (t_point <= self.u[2:-1]).argmax() + 2  # u_I
         if ind < 0:
             ind = 0
+        d_org = np.array([[0,0], [0,0], [0,0], [0,0]])
+        for i in range(4):
+            d_org[i] = np.array([self.d[0, ind - 2 + i], self.d[1, ind - 2 + i]])
         # Select corresponding control points d_i
-        d_org = np.array([self.d[ind - 2 + i] for i in range(4)])
+        #d_org = np.array([self.d[ind - 2 + i] for i in range(4)])
         alpha = self.div(self.u[ind + 1] - t_point, self.u[ind + 1] - self.u[ind - 2]) # ALPHA SHOULD BE UPDATED, DEPENDS ON BLOSSOM PAIR
 
         # Blossom recursion, sec for second interpolation etc
@@ -106,12 +113,7 @@ class Spline:
             print(s[i,0])
             plt.plot(s[i,0],s[i,1],'b')
         print("afterafter")
-        #plt.show()
-
-        fig = plt.gcf()
-        plotly_fig = tls.mpl_to_plotly(fig)
-        plotly_fig['layout']['showlegend'] = True
-        print("?")
+        plt.show()
 
 
 
