@@ -8,11 +8,6 @@ import random
 
 class Spline:
 
-    """
-    u are node points, increasing of length K = (length of d) - 2
-    d are deBoor points
-    N length of parameter vector
-    """
     def __init__(self, d, u, interpolate=False, N=1000):
         """
         Constructs a Spline object.
