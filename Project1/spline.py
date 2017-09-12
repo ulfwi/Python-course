@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.linalg as linalg
+import scipy.linalg as la
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -10,11 +10,14 @@ import random
 class Spline:
 
     """
-    u are node points, increasing
+    u are node points, increasing of length K = (length of d) - 2
     d are deBoor points
     N length of parameter vector
     """
-    def __init__(self, d, u, interpolate=False, N=1000): # 100
+    def __init__(self, d, u, interpolate=False, N=1000):
+        if not u.shape[0] == d.shape[1] - 2: \
+                raise AssertionError('Knot vector u is not of length K :(')
+
         self.N = N
         self.u = u
         self.u.sort()  # if not sorted in increasing order
@@ -31,7 +34,9 @@ class Spline:
             self.d = self.byInterpolation(d)
 
 
-    def __call__(self, d, u, interpolate=False, N=100):
+    def __call__(self, d, u, interpolate=False, N=1000):
+        if not u.shape[0] == d.shape[1] - 2: \
+                raise AssertionError('Knot vector u is not of length K :(')
         self.u = u
         self.u.sort()  # if not sorted in increasing order
         # Create parameter vector t of length N
@@ -47,39 +52,67 @@ class Spline:
             self.d = self.byInterpolation(d)
         print("Now you've gotten a new spline (using your old one), yay!")
 
-
-    # Define control points by interpolation
     def byInterpolation(self, coord):
-        # form chi Greville abscissae
-        print(self.u[:-2])
-        chi = (self.u[:-2] + self.u[1:-1] + self.u[2:])/3
+        """
+        Define control points by interpolation.
+
+        :param coord: coordinates on curve for interpolation
+        :return: interpolated control/deBoor points d
+        """""
+
+        # form chi Greville abscissae from padded u
+        chi = (self.u[:-2] + self.u[1:-1] + self.u[2:]) / 3.
         # form Vandermonde like system
         L = coord.shape[1]
-        print(L)
-        print(chi[2])
-        # for indices I-1 to I+2? [i-1,i,i+1,i+2] range 2 to L-1
-        V = np.array([[self.basis(chi[i], j) for j in range(L+1)] for i in range(chi.shape[0]+1)])
-        print(V)
-        dx = linalg.solve_banded((2,2),V,coord[0,:])
-        dy = linalg.solve_banded((2,2),V,coord[1,:])
-        d = np.array([dx,dy])
-        print(d)
-        return d
+        V = np.array([np.array([self.basis(chi[i], j) for j in range(L)]) for i in range(L)])
+        # solve system
+        dx = la.solve(V, coord[0, :])
+        dy = la.solve(V, coord[1, :])
+        return np.array([dx, dy])
 
-    # Returns basis function N_i^3 value in x
     def basis(self, x, i, k=3):
-        if i <= 0 or i>=self.u.shape[0]-1:
-            return 0
+        """
+        Evaluates basis function N_i^3 in point x.
+
+        :param x: point to be evaluated
+        :param i: index of basis function
+        :param k: degree of basis function
+        :return: basis function i evaluated at x
+        """""
+
+        # Base case for k = 0
         if k == 0:
-            if self.u[i-1] <= x < self.u[i]:
-                return 0.5 * (np.sign(x-self.u[i-1]) - np.sign(x-self.u[i])) # sum of two step functions
+            if (self.u[i - 1] <= x < self.u[i]) or (i == self.u.shape[0] - 3 and x == self.u[i]):
+                return 1
             else:
                 return 0
-        else:
-            return self.div((x - self.u[i-1]),(self.u[i+k-1] - self.u[i-1])) * self.basis(x, i, k-1) \
-                    + self.div((self.u[i+k] - x),(self.u[i+k] - self.u[i])) * self.basis(x, i+1, k-1)
 
+        # # If at left boundary, preventing index out of bounds, no contribution from the other basis functions
+        # if i == 0:
+        #     return self.div(self.basis(x, i + 1, k - 1) * (self.u[i + k] - x), (self.u[i + k] - self.u[i]))
 
+        # If at right boundary, preventing index out of bounds, no contribution from the other basis functions
+        if i == self.u.shape[0] - 3:
+            return self.div(self.basis(x, i, k - 1) * (x - self.u[i - 1]), (self.u[i + k - 1] - self.u[i - 1]))
+
+        # Recursion step
+        return self.div(self.basis(x, i, k - 1) * (x - self.u[i - 1]), (self.u[i + k - 1] - self.u[i - 1])) \
+               + self.div(self.basis(x, i + 1, k - 1) * (self.u[i + k] - x), (self.u[i + k] - self.u[i]))
+
+    def makeBasisFunc(self, i, k=3):
+        """
+        Creates basis function N_i^3(x).
+
+        :param i: index of basis function
+        :param u: knot sequence
+        :param k: degree of spline
+        :return: basis function i 
+        """""
+
+        def basis(x):
+            return self.basis(x, i, k)
+
+        return basis
 
     def spline(self):
         """
@@ -258,6 +291,58 @@ class Spline:
 
         return 0
 
+
+    def plotBasis(self, i):
+        """
+        Plots basis function i
+
+        :param i: index of basis function
+        :return: --
+        """""
+
+        N = np.array([self.basis(self.t[j], i) for j in range(self.t.shape[0])])
+        plt.plot(self.t, N, 'b')
+        plt.title('Cubic B-spline basis function $N_i^3$, i = ' + str(i))
+        plt.show()
+
+    def plotAllBases(self):
+        """
+        Plots all basis functions.
+
+        :return: --
+        """""
+
+        for i in range(self.u.shape[0] - 2):
+            N = np.array([self.basis(self.t[j], i) for j in range(self.t.shape[0])])
+            plt.plot(self.t, N)
+        plt.title('Cubic B-spline basis functions $N_i^3$')
+        plt.show()
+
+    def splineInterpol(self):
+        """
+        Creates spline by interpolation with basis functions.
+
+        :return: spline_vec
+        """""
+
+        L = self.d.shape[1]
+        N = np.array([[self.basis(self.t[i], j) for j in range(L)] for i in range(self.t.shape[0])])
+        sx = np.dot(N, self.d[0, :])
+        sy = np.dot(N, self.d[1, :])
+        return np.array([sx, sy])
+
+    def plotSplineInterpol(self):
+        """
+        Method to calculate and plot the spline and control polygon by interpolation.
+
+        :return: --
+        """""
+
+        spline_vec = self.splineInterpol()
+        plt.plot(spline_vec[0, :], spline_vec[1, :], 'b-')
+        plt.plot(self.d[0, :], self.d[1, :], 'r-*')
+        plt.title('Spline by basis definition')
+        plt.show()
 
     def div(self,x,y):
         """
