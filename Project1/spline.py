@@ -39,8 +39,16 @@ class Spline:
         else:
             self.d = self.byInterpolation(d)
 
-
     def __call__(self, d, u, interpolate=False, N=1000):
+        """"
+        Calls a Spline object.
+
+        :param d: deBoor points or coordinates depending on boolean interpolate
+        :param u: node points, increasing, of length K = (length of d) - 2
+        :param interpolate: True if control points should be defined by interpolation
+        :param N: length of parameter vector
+        """""
+
         if not u.shape[0] == d.shape[1] - 2: \
                 raise AssertionError('Knot vector u is not of length K :(')
         self.u = u
@@ -130,7 +138,6 @@ class Spline:
             spline_vec[1, t_p] = blossom_pair[1]
         return spline_vec
 
-
     def blossom(self, t_p):
         """
         Recursively evaluate the spline /deBoor algorithm.
@@ -145,17 +152,19 @@ class Spline:
             ind += 1
 
         # Select corresponding control points d_i
-        d_0 = np.zeros((4,2))
+        d_0 = np.zeros((4, 2))
         for i in range(4):
             d_0[i] = np.array([self.d[0, ind - 2 + i], self.d[1, ind - 2 + i]])
 
         # Blossom recursion, sec for second interpolation etc
-        d_1 = np.array([(self.alpha(1, i, ind, t_p) * d_0[i] + (1 - self.alpha(1, i, ind, t_p)) * d_0[1 + i]) for i in range(d_0.shape[0] - 1)])
-        d_2 = np.array([(self.alpha(2, i, ind, t_p) * d_1[i] + (1 - self.alpha(2, i, ind, t_p)) * d_1[1 + i]) for i in range(d_1.shape[0] - 1)])
-        d_3 = np.array([(self.alpha(3, i, ind, t_p) * d_2[i] + (1 - self.alpha(3, i, ind, t_p)) * d_2[1 + i]) for i in range(d_2.shape[0] - 1)])
+        d_1 = np.array([(self.alpha(1, i, ind, t_p) * d_0[i] + (1 - self.alpha(1, i, ind, t_p)) * d_0[1 + i])
+                        for i in range(d_0.shape[0] - 1)])
+        d_2 = np.array([(self.alpha(2, i, ind, t_p) * d_1[i] + (1 - self.alpha(2, i, ind, t_p)) * d_1[1 + i])
+                        for i in range(d_1.shape[0] - 1)])
+        d_3 = np.array([(self.alpha(3, i, ind, t_p) * d_2[i] + (1 - self.alpha(3, i, ind, t_p)) * d_2[1 + i])
+                        for i in range(d_2.shape[0] - 1)])
 
         return d_3[0]  # s(t_p)
-
 
     def alpha(self, k, i, ind, t_p):
         """
@@ -172,7 +181,6 @@ class Spline:
 
         i = i + k - 1
         return self.div(self.u[ind + (i - 2) + (4 - k)] - t_p, self.u[ind + (i - 2) + (4 - k)]- self.u[ind + (i - 2)])
-
 
     def __add__(self, spline_1):
         """"
@@ -206,10 +214,7 @@ class Spline:
         x = np.concatenate((self.d[0, :], d_1[0, :]), axis=0)
         y = np.concatenate((self.d[1, :], d_1[1, :]), axis=0)
         d = np.array([x, y])
-        return Spline(d,u)
-
-
-
+        return Spline(d, u)
 
     def plotSpline(self, polygon=True):
         """
@@ -221,16 +226,15 @@ class Spline:
 
         # Plot polygon
         if polygon:
-            plt.plot(self.d[0,:], self.d[1,:],'r-*')
+            plt.plot(self.d[0, :], self.d[1, :], 'r-*')
 
         # Plot spline
         s = self.spline()
 
-        plt.plot(s[0,:], s[1,:], 'b')
+        plt.plot(s[0, :], s[1, :], 'b')
         plt.show()
 
         return 0
-
 
     def plotBasis(self, i):
         """
@@ -290,7 +294,7 @@ class Spline:
 
         return 0
 
-    def div(self,x,y):
+    def div(self, x, y):
         """
         Definition of zero divided by zero.
 
