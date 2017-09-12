@@ -1,3 +1,10 @@
+"""
+Project 1 FMNN25 Advanced Numerical Algorithms with Python/SciPy
+Authors: Fanny Andersson (tna13fan), Louise Sjöholm (tfy13lsj), Lina Sjöstrand (fra12lsj), Björn Ulfwi (tfy13bul)
+
+"""""
+
+
 import numpy as np
 import scipy.linalg as la
 import matplotlib
