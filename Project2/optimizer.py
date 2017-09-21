@@ -1,5 +1,5 @@
 
-import numpy.linalg as la
+import scipy.linalg as la
 import numpy as np
 import scipy.optimize as op
 
@@ -8,7 +8,9 @@ class Optimizer:
     def __init__(self, func, grad = None):
         if grad is None:
             def grad(x):
-                return op.approx_fprime(x, func, 10**-6)
+                if x is not np.array:
+                    x = np.array([x])
+                return np.array([op.approx_fprime(x[i], func, 10**-6) for i in range(x.shape[1])])
         self.grad = grad
         self.func = func
 
@@ -47,9 +49,16 @@ class Optimizer:
         print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(p))
 
     def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000):
-        x = x0
+        if x0 is not np.array:
+            x = np.array([x0])
+
+        def grad(x,j):
+            return self.grad[j]
+
         for i in range(maxit):
-            G = op.approx_fprime(x, self.grad,tol)
+            # Approximate Hessian by finite differences
+            g =
+            G = np.array([np.array([op.approx_fprime(x[i], grad[j], 10 ** -6) for i in range(x.shape[1])]) for j in range(x.shape[1])])
             G = 0.5*(np.conjugate(G) + np.transpose(np.conjugate(G)))
             try:
                 L = la.cholesky(G)
