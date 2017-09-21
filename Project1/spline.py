@@ -15,6 +15,9 @@ import random
 
 class Spline:
 
+    """
+    Tell user that u should not be padded.
+    """
     def __init__(self, d, u, interpolate=False, N=1000):
         """
         Constructs a Spline object.
