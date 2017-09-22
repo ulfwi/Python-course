@@ -3,17 +3,25 @@ import scipy.linalg as la
 import numpy as np
 import scipy.optimize as op
 
+
 class Optimizer:
 
     def __init__(self, func, grad = None):
         if grad is None:
             def grad(x):
-                if x is not np.array:
-                    x = np.array([x])
-                return np.array([op.approx_fprime(x[i], func, 10**-6) for i in range(x.shape[1])])
+                return self.finite_diff(func, x)
         self.grad = grad
         self.func = func
 
+    def finite_diff(self, f, x, h=1e-8):
+        g = np.zeros(x.shape[0])
+        for i in range(x.shape[0]):
+            x_upper = np.copy(x)
+            x_lower = np.copy(x)
+            x_upper[i] += h
+            x_lower[i] -= h
+            g[i] = (f(x_upper) - f(x_lower)) / (2 * h)
+        return g
 
     @classmethod
     def optimize(cls, func, grad = None, tol = 10**-6):
@@ -29,43 +37,22 @@ class Optimizer:
         elif solver == "secant":
             return self.secant_method_solve(x0, line_search,tol, maxit)
 
-
-
-
-            # Search direction
-            L = la.cholesky(G)
-            p = -np.solve(L*np.transpose(L),self.grad)
-            if line_search == "exact":
-                alpha = self.ls_exact(p,x,tol)
-            elif line_search == "goldstein":
-                alpha = self.ls_gold(p,x,tol)
-            elif line_search == "wolfe":
-                alpha = self.ls_gold(p, x, tol)
-
-            x = x + alpha*p
-            if np.norm(p) < tol:
-                print('Converged in' + i + 'iterations!')
-                return x
-        print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(p))
-
-    def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000):
-        if x0 is not np.array:
-            x = np.array([x0])
-
-        def grad(x,j):
-            return self.grad[j]
+    def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000, h = 0.001):
+        x = np.copy(x0)
 
         for i in range(maxit):
+
             # Approximate Hessian by finite differences
-            g =
-            G = np.array([np.array([op.approx_fprime(x[i], grad[j], 10 ** -6) for i in range(x.shape[1])]) for j in range(x.shape[1])])
+            G = self.calc_hessian(x,h)
             G = 0.5*(np.conjugate(G) + np.transpose(np.conjugate(G)))
             try:
                 L = la.cholesky(G)
+                p = -la.solve(L * np.transpose(L), self.grad(x))
             except Exception:
-                pass
+                print("Hessian not spd! Solving linear system without Cholesky factorization.")
+                p = -la.solve(G, self.grad(x))
 
-            p = -np.solve(L * np.transpose(L), self.grad)
+
             if line_search == "exact":
                 alpha = self.ls_exact(p, x, tol)
             elif line_search == "goldstein":
@@ -73,22 +60,36 @@ class Optimizer:
             elif line_search == "wolfe":
                 alpha = self.ls_gold(p, x, tol)
 
-            x = x + alpha * p
-            if np.norm(p) < tol:
-                print('Converged in' + i + 'iterations!')
+            x = x + alpha*p
+            if la.norm(p) < tol:
+                print("Converged in " + str(i) + " iteration(s)!")
                 return x
-        print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(p))
+            print("Iteration: " + str(i) + " Step: " + str(p))
+        print("Did not converge. Number of iterations: " + str(maxit) + "\nFinal error: " + str(la.norm(p)))
+        return 1
 
+    def calc_hessian(self, x, h = 1e-8):
+        n = x.shape[0]
+        G = np.zeros([n,n])
+        for k in range(n):
+            x_upper = np.copy(x)
+            x_lower = np.copy(x)
+            x_upper[k] += h
+            x_lower[k] -= h
+            g_upper = self.grad(x_upper)
+            g_lower = self.grad(x_lower)
+            G[:, k] = (g_upper - g_lower) / (2 * h)
+        return G
 
     def bfgs_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
-        x = x0
+        x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
         H = np.identity(n)
 
         for i in range(maxit):
             # Search direction
-            p = -H*self.grad(x)
+            p = -np.dot(H,self.grad(x))
             if line_search == "exact":
                 alpha = self.ls_exact(p, x, tol)
             elif line_search == "goldstein":
@@ -98,19 +99,23 @@ class Optimizer:
 
             w = alpha*p
             x = x + w
-            if np.norm(w) < tol:
-                print('Converged in' + i + 'iterations!')
+            if la.norm(w) < tol:
+                print('Converged in ' + str(i) + ' iteration(s)!')
                 return x
+            # BFGS update of H inverse
             y = self.grad(x) - self.grad(x-w)
-            rho = 1 / np.dot(y,w)
-            H = (np.identity(n) - rho*np.outer(w,y))*H*(np.identity - rho*np.outer(y,w)) + rho*np.outer(w,w)
+            rho = 1. / np.dot(y,w)
+            H = (np.identity(n) - rho*np.outer(w,y))*H*(np.identity(n) - rho*np.outer(y,w)) + rho*np.outer(w,w)
 
-        print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(w))
+        print('Did not converge. Number of iterations: ' + str(maxit) + '\nFinal error: ' + str(la.norm(w)))
 
 
 
 
     def secant_method_solve(self, line_search, tol=10 ** -6, maxit = 1000):
+        pass
+
+    def dfp_solve(self, line_search, tol=10 ** -6, maxit = 1000):
         pass
 
 
