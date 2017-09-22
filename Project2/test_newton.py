@@ -19,6 +19,7 @@ if lb:
 if fl:
     def f(x):
         return np.dot(x,x)
+        # Rosenbrock function
         #return 100*(x[1]-x[0]**2)**2+(1-x[0])**2
 
     p = np.array([2,2])
@@ -27,4 +28,6 @@ if fl:
 
     alpha = Opt.ls_exact(p,x)
     print('alpha:', alpha)
+
+
 
