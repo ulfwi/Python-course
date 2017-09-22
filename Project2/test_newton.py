@@ -2,16 +2,16 @@ from optimizer import Optimizer
 import numpy as np
 
 
-lb = False
-fl = True
+lb = True
+fl = False
 
 # Bjorn Lina
 if lb:
     def func(x):
-        return -x*x
+        return -np.dot(x,x)
 
     solver = Optimizer(func)
-    x_opt = solver.newton_method(np.array([10,10,10]), "finiteDiff", "exact")
+    x_opt = solver.newton_method(np.array([1.,1.,1.]), "dfp", "exact")
     print(x_opt)
 
 

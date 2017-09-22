@@ -41,6 +41,8 @@ class Optimizer:
             return self.bfgs_solve(x0, line_search, tol, maxit)
         elif solver == "secant":
             return self.secant_method_solve(x0, line_search,tol, maxit)
+        elif solver == "dfp":
+            return self.dfp_solve(x0, line_search,tol, maxit)
 
     def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000, h = 0.001):
         x = np.copy(x0)
@@ -53,17 +55,20 @@ class Optimizer:
             try:
                 L = la.cholesky(G)
                 p = -la.solve(L * np.transpose(L), self.grad(x))
+                print(p)
             except Exception:
                 print("Hessian not spd! Solving linear system without Cholesky factorization.")
                 p = -la.solve(G, self.grad(x))
 
-
             if line_search == "exact":
-                alpha = self.ls_exact(p, x, tol)
+                alpha = self.ls_exact(p, x)
             elif line_search == "goldstein":
                 alpha = self.ls_gold(p, x, tol)
             elif line_search == "wolfe":
                 alpha = self.ls_gold(p, x, tol)
+
+            # OBS!! Sätter alpha till 1
+            alpha = 1
 
             x = x + alpha*p
             if la.norm(p) < tol:
@@ -114,15 +119,38 @@ class Optimizer:
 
         print('Did not converge. Number of iterations: ' + str(maxit) + '\nFinal error: ' + str(la.norm(w)))
 
+    def dfp_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        x = x0
+        n = len(x)
+        # Initial guess of inverse of Hessian
+        H = np.identity(n)
 
+        for i in range(maxit):
+            # Search direction
+            p = -np.dot( H, self.grad(x))
+            #if line_search == "exact":
+            #    alpha = self.ls_exact(p, x)
+            #elif line_search == "goldstein":
+            #    alpha = self.ls_gold(p, x, tol)
+            #elif line_search == "wolfe":
+            #    alpha = self.ls_gold(p, x, tol)
+
+            # OBS!! Sätter alpha till 1
+            alpha = 1
+
+            s = alpha * p
+            x = x + s
+            if la.norm(s) < tol:
+                print('Converged in ' + str(i) + ' iteration(s)!')
+                return x
+            y = self.grad(x) - self.grad(x - s)
+            H = H - np.outer(np.dot(H,y),np.dot(np.transpose(y),H)) / np.inner(np.transpose(y),np.dot(H,y)) + np.outer(s,s) / np.inner(y,s)
+
+        print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(s))
 
 
     def secant_method_solve(self, line_search, tol=10 ** -6, maxit = 1000):
         pass
-
-    def dfp_solve(self, line_search, tol=10 ** -6, maxit = 1000):
-        pass
-
 
 # Lägga alla LS metoder i en egen klass?? Samma med Newton-metoderna? <-------------
 
