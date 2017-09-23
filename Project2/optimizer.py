@@ -39,10 +39,12 @@ class Optimizer:
             return self.newton_solve(x0, line_search, tol, maxit)
         elif solver == "bfgs":
             return self.bfgs_solve(x0, line_search, tol, maxit)
-        elif solver == "secant":
-            return self.secant_method_solve(x0, line_search,tol, maxit)
         elif solver == "dfp":
             return self.dfp_solve(x0, line_search,tol, maxit)
+        elif solver == "goodBroyden":
+            return self.good_broyden_solve(x0, line_search,tol, maxit)
+        elif solver == "badBroyden":
+            return self.bad_broyden_solve(x0, line_search,tol, maxit)
 
     def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000, h = 0.001):
         x = np.copy(x0)
@@ -66,9 +68,6 @@ class Optimizer:
                 alpha = self.ls_gold(p, x, tol)
             elif line_search == "wolfe":
                 alpha = self.ls_gold(p, x, tol)
-
-            # OBS!! Sätter alpha till 1
-            alpha = 1
 
             x = x + alpha*p
             if la.norm(p) < tol:
@@ -101,7 +100,7 @@ class Optimizer:
             # Search direction
             p = -np.dot(H,self.grad(x))
             if line_search == "exact":
-                alpha = self.ls_exact(p, x, tol)
+                alpha = self.ls_exact(p, x)
             elif line_search == "goldstein":
                 alpha = self.ls_gold(p, x, tol)
             elif line_search == "wolfe":
@@ -128,15 +127,12 @@ class Optimizer:
         for i in range(maxit):
             # Search direction
             p = -np.dot( H, self.grad(x))
-            #if line_search == "exact":
-            #    alpha = self.ls_exact(p, x)
-            #elif line_search == "goldstein":
-            #    alpha = self.ls_gold(p, x, tol)
-            #elif line_search == "wolfe":
-            #    alpha = self.ls_gold(p, x, tol)
-
-            # OBS!! Sätter alpha till 1
-            alpha = 1
+            if line_search == "exact":
+                alpha = self.ls_exact(p, x)
+            elif line_search == "goldstein":
+                alpha = self.ls_gold(p, x, tol)
+            elif line_search == "wolfe":
+                alpha = self.ls_gold(p, x, tol)
 
             s = alpha * p
             x = x + s
@@ -148,9 +144,67 @@ class Optimizer:
 
         print('Did not converge. Number of iterations: ' + maxit + '\nFinal error: ' + np.norm(s))
 
+    def good_broyden_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        x = np.copy(x0)
+        n = len(x)
+        # Initial guess of inverse of Hessian
+        H = np.identity(n)
 
-    def secant_method_solve(self, line_search, tol=10 ** -6, maxit = 1000):
-        pass
+        for i in range(maxit):
+            # Search direction
+            p = -np.dot(H, self.grad(x))
+            if line_search == "exact":
+                alpha = self.ls_exact(p, x)
+            elif line_search == "goldstein":
+                alpha = self.ls_gold(p, x, tol)
+            elif line_search == "wolfe":
+                alpha = self.ls_gold(p, x, tol)
+
+            delta = alpha * p
+            x = x + delta
+            print(p)
+            if la.norm(p) < tol:
+                print('Converged in ' + str(i) + ' iteration(s)!')
+                return x
+
+            # Broyden update of H
+            gamma = self.grad(x) - self.grad(x-delta)
+            u = delta - np.dot(H,gamma)
+            a = 1 / np.dot(u, gamma)
+            H = H + a*np.dot(u,u)
+
+        print('Did not converge. Number of iterations: ' + str(maxit) + '\nFinal error: ' + str(la.norm(w)))
+
+    def bad_broyden_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        x = np.copy(x0)
+        n = len(x)
+        # Initial guess of inverse of Hessian
+        H = np.identity(n)
+
+        for i in range(maxit):
+            # Search direction
+            p = -np.dot(H, self.grad(x))
+            if line_search == "exact":
+                alpha = self.ls_exact(p, x)
+            elif line_search == "goldstein":
+                alpha = self.ls_gold(p, x, tol)
+            elif line_search == "wolfe":
+                alpha = self.ls_gold(p, x, tol)
+
+            delta = alpha * p
+            x = x + delta
+            print(p)
+            if la.norm(p) < tol:
+                print('Converged in ' + str(i) + ' iteration(s)!')
+                return x
+
+            # Broyden update of H
+            gamma = self.grad(x) - self.grad(x-delta)
+            u = delta - np.dot(H,gamma)
+            a = 1 / np.dot(u, gamma)
+            H = H + np.outer((delta - np.dot(H,gamma)) / np.inner(delta, np.dot(H, gamma)), np.dot(delta,H))
+
+        print('Did not converge. Number of iterations: ' + str(maxit) + '\nFinal error: ' + str(la.norm(w)))
 
 # Lägga alla LS metoder i en egen klass?? Samma med Newton-metoderna? <-------------
 
