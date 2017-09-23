@@ -206,6 +206,7 @@ class Optimizer:
 
         print('Did not converge. Number of iterations: ' + str(maxit) + '\nFinal error: ' + str(la.norm(w)))
 
+
 # Lägga alla LS metoder i en egen klass?? Samma med Newton-metoderna? <-------------
 
     def ls_exact(self, p, x):
