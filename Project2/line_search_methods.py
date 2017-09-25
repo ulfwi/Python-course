@@ -38,15 +38,17 @@ def grad_alpha(grad, alp, x, p):
 def ls_exact(func, x, p):
     """
     Exact line search. Minimize objective function func with respect to alpha (alp)
-    using scikit.optimize.fmin
+    using scipy.optimize.fmin
     
     :param func: function to be minimized
     :param p: direction of steepest descent
-    :param x: evaluation point (??????????????)
+    :param x: evaluation point
     :return: step length alpha (alp)
     """
+    def f(alpha, x, p):
+        return func(x+alpha*p)
     alp = 0
-    alp = op.fmin(func_alpha, alp, args=(x, p), disp=False)
+    alp = op.fmin(f, alp, args=(x, p), disp=False)
     return alp
 
 
@@ -54,6 +56,7 @@ def ls_block1(grad, x, p, alp_0, alp_l, tau=0.1, chi=9):
     """
     Block 1 in algorithm for inexact line search (see p. 48 in lecture notes)
 
+    :param grad gradient of objective function
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param alp_l: lower bound of alpha interval
     :param tau: parameter in algorithm
@@ -75,6 +78,8 @@ def ls_block2(func, grad, x, p, alp_0, alp_l, alp_u, tau=0.1):
     """
      Block 2 in algorithm for inexact line search (see p. 48 in lecture notes)
 
+    :param func objective function
+    :param grad gradient of objective function
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param alp_u: upper bound of alpha interval
     :param alp_l: lower bound of alpha interval
@@ -86,8 +91,8 @@ def ls_block2(func, grad, x, p, alp_0, alp_l, alp_u, tau=0.1):
     alp_u = min([alp_0, alp_u])
     # Interpolate
     alp_0_bar = ((alp_0 - alp_l) ** 2 * grad_alpha(grad, alp_l, x, p)) / \
-                2 * (func_alpha(func, alp_l, x, p) - func_alpha(func, alp_0, x, p) \
-                     + (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
+                (2 * (func_alpha(func, alp_l, x, p) - func_alpha(func, alp_0, x, p) +
+                      (alp_0 - alp_l)*grad_alpha(grad, alp_l, x, p)))
     alp_0_bar = max([alp_0_bar, alp_l + tau * (alp_u - alp_l)])
     alp_0_bar = min([alp_0_bar, alp_u - tau * (alp_u - alp_l)])
     alp_0 = alp_0_bar
@@ -99,6 +104,9 @@ def ls_gold(func, grad, x, p, alp_0=1, rho=0.25):
     """
     Line search with Goldstein conditions
 
+    :param func: objective function
+    :param grad: gradient of objective function
+    :param x: point
     :param p: direction of steepest descent
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param rho: parameter in algorithm
@@ -114,10 +122,10 @@ def ls_gold(func, grad, x, p, alp_0=1, rho=0.25):
         print('Your choice of rho was out of bounds (allowed bounds [0, 0.5]), it has now been set to 0.1')
 
     # Check if lc (left condition) and rc (right condition) is true or false
-    lc = (func_alpha(func, alp_0, x, p) >= func_alpha(func, alp_l, x, p) + (1 - rho) * (alp_0 - alp_u) \
+    lc = (func_alpha(func, alp_0, x, p) >= func_alpha(func, alp_l, x, p) + (1. - rho) * (alp_0 - alp_l)
           * grad_alpha(grad, alp_l, x, p))
-    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_u) * \
-          grad_alpha(grad, alp_l, x, p))
+    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_l)
+          * grad_alpha(grad, alp_l, x, p))
 
     # While lc or rc is false, update alp_l and alp_0 or alp_u and alp_0 respectively
     while ~(lc & rc):
@@ -126,10 +134,10 @@ def ls_gold(func, grad, x, p, alp_0=1, rho=0.25):
         # if ~rc:
         else:
             alp_0, alp_u = ls_block2(func, grad, x, p, alp_0, alp_l, alp_u)
-        lc = (func_alpha(func, alp_0, x, p) >= func_alpha(func, alp_l, x, p) + \
-              (1. - rho) * (alp_0 - alp_u) * grad_alpha(grad, alp_l, x, p))
-        rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + \
-              rho * (alp_0 - alp_u) * grad_alpha(grad, alp_l, x, p))
+        lc = (func_alpha(func, alp_0, x, p) >= func_alpha(func, alp_l, x, p) +
+              (1. - rho) * (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
+        rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) +
+              rho * (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
 
     return alp_0
 
@@ -138,6 +146,8 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
     """
     Line search with Wolfe-Powell conditions
 
+    :param func objective function
+    :param grad gradient of objective function
     :param p: direction of steepest descent
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param rho: parameter in algorithm
@@ -163,7 +173,8 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
 
     # Check if lc (left condition) and rc (right condition) is true or false
     lc = (grad_alpha(grad, alp_0, x, p) >= sigma * grad_alpha(grad, alp_l, x, p))  # grad*p = dfunc/dalp
-    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_u) * grad_alpha(grad, alp_l, x, p))
+    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_l) * \
+          grad_alpha(grad, alp_l, x, p))
 
     # While lc or rc is false, update alp_l and alp_0 or alp_u and alp_0 respectively
     while ~(lc & rc):
@@ -172,10 +183,9 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
         # if ~rc:
         else:
             alp_0, alp_u = ls_block2(func, grad, x, p, alp_0, alp_l, alp_u)
-        lc = (func_alpha(func, alp_0, x, p) >= func_alpha(func, alp_l, x, p) + \
-              (1. - rho) * (alp_0 - alp_u) * grad_alpha(grad, alp_l, x, p))
+        lc = (grad_alpha(grad, alp_0, x, p) >= sigma * grad_alpha(grad, alp_l, x, p))
         rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + \
-              rho * (alp_0 - alp_u) * grad_alpha(grad, alp_l, x, p))
+              rho * (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
 
     return alp_0
 
