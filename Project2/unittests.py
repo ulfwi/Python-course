@@ -67,7 +67,78 @@ class TestOptimizer(unittest.TestCase):
         #Jämför med svaret p.37
         #self.assertAlmostEqual(alpha_wolfe,1.16094)
 
-        def test_newton:
+        def test_newton(self):
+            """
+            Finds the minimum of the Rosenbrock function with Newton's method with different
+            line search methods and compares them with the analytical solution
+            :return:
+            """
+            tol = 10 ** -6
+            x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "newton", "exact", tol, 1000)
+            x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "newton", "wolfe", tol, 1000)
+            x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "newton", "goldstein", tol, 1000)
 
-            #Lina och Björn klistra in sina test här
+            np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
+
+        def test_bfgs(self):
+            """
+            Finds the minimum of the Rosenbrock function with the BFGS method with different
+            line search methods and compares them with the analytical solution
+            :return:
+            """
+            tol = 10 ** -6
+            x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "bfgs", "exact", tol, 1000)
+            x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "bfgs", "wolfe", tol, 1000)
+            x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "bfgs", "goldstein", tol, 1000)
+
+            np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
+
+        def test_dfp(self):
+            """
+            Finds the minimum of the Rosenbrock function with DFP method with different
+            line search methods and compares them with the analytical solution
+            :return:
+            """
+            tol = 10 ** -6
+            x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "dfp", "exact", tol, 1000)
+            x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "dfp", "wolfe", tol, 1000)
+            x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "dfp", "goldstein", tol, 1000)
+
+            np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
+
+        def test_good_broyden(self):
+            """
+            Finds the minimum of the Rosenbrock function with good Broyden method with different
+            line search methods and compares them with the analytical solution
+            :return:
+            """
+            tol = 10 ** -6
+            x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "exact", tol, 1000)
+            x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "wolfe", tol, 1000)
+            x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "goldstein", tol, 1000)
+
+            np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
+
+        def test_bad_broyden(self):
+            """
+            Finds the minimum of the Rosenbrock function with bad Broyden method with different
+            line search methods and compares them with the analytical solution
+            :return:
+            """
+            tol = 10 ** -6
+            x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "badBroyden", "exact", tol, 1000)
+            x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "badBroyden", "wolfe", tol, 1000)
+            x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "badBroyden", "goldstein", tol, 1000)
+
+            np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+            np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
 
