@@ -10,6 +10,8 @@ Claus Führer (2016)
 from  scipy import dot,linspace
 import scipy.optimize as so
 from numpy import array
+import numpy as np
+from optimizer import Optimizer
 
 
 def T(x, n):
@@ -81,4 +83,17 @@ def gradchebyquad(x):
     
 if __name__ == '__main__':
     x=linspace(0,1,8)
-    xmin= so.fmin_bfgs(chebyquad,x,gradchebyquad)  # should converge after 18 iterations  
+    xmin= so.fmin_bfgs(chebyquad,x,gradchebyquad, disp = False)  # should converge after 18 iterations
+
+#Task 11
+opt = Optimizer(chebyquad_fcn, gradchebyquad)
+#n=4
+x = np.array([0.5, 0.3, 0.6, 0.2])
+
+x_opt = opt.newton_method(x)
+
+xmin_theory = so.fmin_bfgs(chebyquad,x,gradchebyquad, disp = False)
+
+print(xmin_theory)
+print('x_opt:', x_opt, 'x_teory:', xmin_theory)
+

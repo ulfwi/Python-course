@@ -9,16 +9,14 @@ import numpy as np
 import line_search_methods as ls
 
 
-class Optimizer:
+class OptimizationProblem:
 
-    def __init__(self, func, grad=None, ineqconstr=0, eqconstr=0):
+    def __init__(self, func, grad=None):
         if grad is None:
             def grad(x):
                 return self.finite_diff(func, x)
         self.func = func
         self.grad = grad
-        self.ineq_constr = ineqconstr
-        self.eq_constr = eqconstr
 
     def finite_diff(self, f, x, h=1e-8):
         g = np.zeros(x.shape[0])
@@ -30,19 +28,19 @@ class Optimizer:
             g[i] = (f(x_upper) - f(x_lower)) / (2 * h)
         return g
 
-    def newton_method(self, x0, solver = "finiteDiff", line_search = "exact", tol=10 ** -6, maxit = 1000):
+    def newton_solve(self, x0, solver = "finiteDiff", line_search = "exact", tol=10 ** -6, maxit = 1000):
         if solver == "finiteDiff":
-            return self.newton_solve(x0, line_search, tol, maxit)
+            return self.newton_method(x0, line_search, tol, maxit)
         elif solver == "bfgs":
-            return self.bfgs_solve(x0, line_search, tol, maxit)
+            return self.bfgs_method(x0, line_search, tol, maxit)
         elif solver == "dfp":
-            return self.dfp_solve(x0, line_search,tol, maxit)
+            return self.dfp_method(x0, line_search,tol, maxit)
         elif solver == "goodBroyden":
-            return self.good_broyden_solve(x0, line_search,tol, maxit)
+            return self.good_broyden_method(x0, line_search,tol, maxit)
         elif solver == "badBroyden":
-            return self.bad_broyden_solve(x0, line_search,tol, maxit)
+            return self.bad_broyden_method(x0, line_search,tol, maxit)
 
-    def newton_solve(self, x0, line_search, tol = 10 ** -6, maxit = 1000):
+    def newton_method(self, x0, line_search, tol = 10 ** -6, maxit = 1000):
         x = np.copy(x0)
 
         for i in range(maxit):
@@ -85,7 +83,7 @@ class Optimizer:
             hess[k, :] = (g_upper - g_lower) / (2 * h)
         return hess
 
-    def bfgs_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+    def bfgs_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -113,7 +111,7 @@ class Optimizer:
 
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(w)))
 
-    def dfp_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+    def dfp_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
         x = x0
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -139,7 +137,7 @@ class Optimizer:
 
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(np.norm(s)))
 
-    def good_broyden_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+    def good_broyden_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -166,16 +164,21 @@ class Optimizer:
             # u = delta - np.dot(H, gamma)
             # a = 1 / np.inner(u, gamma)
             # H = H + a * np.outer(u, u)
-            a = (delta - np.dot(H, gamma)) / np.inner(delta, np.dot(H, gamma))
-            b = np.dot(np.transpose(delta), H)
-            H = H + np.outer(a,b)
+            # a = (delta - np.dot(H, gamma)) / np.inner(delta, np.dot(H, gamma))
+            # b = np.dot(np.transpose(delta), H)
+            # H = H + np.outer(a,b)
+
+            a = (delta - np.dot(H, gamma))
+            b = np.dot(np.transpose(delta),H)
+            c = np.inner(delta, np.dot(H, gamma))
+            H = H + np.outer(a,b)/c
             print(x)
             print(H)
             #a = np.outer(delta - np.dot(H, gamma),delta) / np.inner(delta, np.dot(H, gamma))
 
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(delta)))
 
-    def bad_broyden_solve(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+    def bad_broyden_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian

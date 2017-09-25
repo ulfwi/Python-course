@@ -172,9 +172,9 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
         print('Your choice of sigma was inaccurate since sigma > rho, it has now been set to 0.7')
 
     # Check if lc (left condition) and rc (right condition) is true or false
-    lc = (grad_alpha(grad, alp_0, x, p) >= sigma * grad_alpha(grad, alp_l, x, p))  # grad*p = dfunc/dalp
-    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_l) * \
-          grad_alpha(grad, alp_l, x, p))
+    lc = (grad_alpha(grad, alp_0, x, p) >= sigma * grad_alpha(grad, alp_l, x, p))
+    rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + rho * (alp_0 - alp_l)
+          * grad_alpha(grad, alp_l, x, p))
 
     # While lc or rc is false, update alp_l and alp_0 or alp_u and alp_0 respectively
     while ~(lc & rc):
@@ -184,8 +184,8 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
         else:
             alp_0, alp_u = ls_block2(func, grad, x, p, alp_0, alp_l, alp_u)
         lc = (grad_alpha(grad, alp_0, x, p) >= sigma * grad_alpha(grad, alp_l, x, p))
-        rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p) + \
-              rho * (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
+        rc = (func_alpha(func, alp_0, x, p) <= func_alpha(func, alp_l, x, p)
+              + rho * (alp_0 - alp_l) * grad_alpha(grad, alp_l, x, p))
 
     return alp_0
 
