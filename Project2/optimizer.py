@@ -229,14 +229,8 @@ class OptimizationProblem:
             else:
                 raise ValueError('No valid line search method was given')
 
-            print('alpha: ', alpha)
-           # if alpha < 10**-15:
-
-                #raise ArithmeticError('Alpha too small. p is pointing away from minima')
-
-
+            #print('alpha: ', alpha)
             delta = alpha * p
-
             x = x + delta
             if la.norm(p) < tol:
                 print('Converged in ' + str(i) + ' iteration(s)!')
@@ -254,9 +248,12 @@ class OptimizationProblem:
             a = (delta - np.dot(H, gamma))
             b = np.dot(np.transpose(delta), H)
             c = np.inner(delta, np.dot(H, gamma))
+            if c == 0.:
+                raise ArithmeticError('Division by zero!')
+            #print('c: ', c)
             H = H + np.outer(a, b) / c
-            print('x: ', x)
-            print('H: ', H)
+            #print('x: ', x)
+            #print('H: ', H)
             #a = np.outer(delta - np.dot(H, gamma),delta) / np.inner(delta, np.dot(H, gamma))
 
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(delta)))
