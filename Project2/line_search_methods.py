@@ -1,6 +1,5 @@
 """
-Line search methods.
-Exact line search and inexact (Wolfe, Goldstein)
+Exact and inexact line search methods (Wolfe, Goldstein)
 
 Authors: Fanny Andersson (tna13fan), Louise Sjöholm (tfy13lsj), Lina Sjöstrand (fra12lsj), Björn Ulfwi (tfy13bul)
 """
@@ -56,7 +55,9 @@ def ls_block1(grad, x, p, alp_0, alp_l, tau=0.1, chi=9):
     """
     Block 1 in algorithm for inexact line search (see p. 48 in lecture notes)
 
-    :param grad gradient of objective function
+    :param grad: gradient of objective function
+    :param x: current point
+    :param p: search direction
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param alp_l: lower bound of alpha interval
     :param tau: parameter in algorithm
@@ -78,14 +79,14 @@ def ls_block2(func, grad, x, p, alp_0, alp_l, alp_u, tau=0.1):
     """
      Block 2 in algorithm for inexact line search (see p. 48 in lecture notes)
 
-    :param func objective function
-    :param grad gradient of objective function
+    :param func: objective function
+    :param grad: gradient of objective function
+    :param x: current point
+    :param p: direction of steepest descent
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param alp_u: upper bound of alpha interval
     :param alp_l: lower bound of alpha interval
-    :param p: direction of steepest descent
     :param tau: parameter in algorithm
-    :param chi: parameter in algorithm
     :return: updated alp_0 and alp_u
     """
     alp_u = min([alp_0, alp_u])
@@ -146,8 +147,9 @@ def ls_wolfe(func, grad, x, p, alp_0=1, rho=0.1, sigma=0.7):
     """
     Line search with Wolfe-Powell conditions
 
-    :param func objective function
-    :param grad gradient of objective function
+    :param func: objective function
+    :param grad: gradient of objective function
+    :param x: current point
     :param p: direction of steepest descent
     :param alp_0: soon to be acceptable point (when rc and lc are true)
     :param rho: parameter in algorithm
