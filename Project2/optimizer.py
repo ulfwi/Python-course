@@ -201,7 +201,7 @@ class OptimizationProblem:
             H = H - np.outer(np.dot(H, y), np.dot(np.transpose(y), H)) / np.inner(np.transpose(y), np.dot(H, y))\
                 + np.outer(s, s) / np.inner(y, s)
 
-        print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(np.norm(s)))
+        print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(s)))
 
     def good_broyden_method(self, x0, line_search, tol=10 ** -6, maxit=1000):
         """
@@ -229,7 +229,6 @@ class OptimizationProblem:
             else:
                 raise ValueError('No valid line search method was given')
 
-            #print('alpha: ', alpha)
             delta = alpha * p
             x = x + delta
             if la.norm(p) < tol:
@@ -238,23 +237,13 @@ class OptimizationProblem:
 
             # Broyden update of H
             gamma = self.grad(x) - self.grad(x-delta)
-            # u = delta - np.dot(H, gamma)
-            # a = 1 / np.inner(u, gamma)
-            # H = H + a * np.outer(u, u)
-            # a = (delta - np.dot(H, gamma)) / np.inner(delta, np.dot(H, gamma))
-            # b = np.dot(np.transpose(delta), H)
-            # H = H + np.outer(a,b)
-
             a = (delta - np.dot(H, gamma))
             b = np.dot(np.transpose(delta), H)
             c = np.inner(delta, np.dot(H, gamma))
             if c == 0.:
                 raise ArithmeticError('Division by zero!')
-            #print('c: ', c)
+
             H = H + np.outer(a, b) / c
-            #print('x: ', x)
-            #print('H: ', H)
-            #a = np.outer(delta - np.dot(H, gamma),delta) / np.inner(delta, np.dot(H, gamma))
 
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(delta)))
 
