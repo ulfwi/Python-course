@@ -101,20 +101,20 @@ class TestOptimizer(unittest.TestCase):
         np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
         np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
 
-    def test_good_broyden(self):
-        """
-        Finds the minimum of the Rosenbrock function with good Broyden method with different
-        line search methods and compares them with the analytical solution
-        :return:
-        """
-        tol = 10 ** -6
-        x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "exact", tol, 1000)
-        x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "wolfe", tol, 1000)
-        x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "goldstein", tol, 1000)
-
-        np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
-        np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
-        np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
+    # def test_good_broyden(self):
+    #     """
+    #     Finds the minimum of the Rosenbrock function with good Broyden method with different
+    #     line search methods and compares them with the analytical solution
+    #     :return:
+    #     """
+    #     tol = 10 ** -6
+    #     x_opt_exact = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "exact", tol, 1000)
+    #     x_opt_wolfe = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "wolfe", tol, 1000)
+    #     x_opt_gold = self.opt.newton_solve(np.array([0., 0.]), "goodBroyden", "goldstein", tol, 1000)
+    #
+    #     np.testing.assert_almost_equal(x_opt_exact, np.array([1., 1.]), 6)
+    #     np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
+    #     np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
 
     def test_bad_broyden(self):
         """
@@ -133,7 +133,7 @@ class TestOptimizer(unittest.TestCase):
 
     def test_invHessian(self):
         """
-        Test quality of approximation of bfgs method of inverse of Hessian for growing k
+        Test the quality of the approximation of the inverse of Hessian for growing k using bfgs method
         :return:
         """
 
