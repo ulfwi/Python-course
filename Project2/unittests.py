@@ -8,13 +8,10 @@ Authors: Fanny Andersson (tna13fan), Louise Sjöholm (tfy13lsj), Lina Sjöstrand
 import unittest
 from optimizer import OptimizationProblem
 import numpy as np
-import matplotlib.pyplot as plt
-from timeit import default_timer as timer
 import line_search_methods as ls
-import scipy.linalg as la
+
 
 class TestOptimizer(unittest.TestCase):
-
 
     def setUp(self):
         """
@@ -25,8 +22,10 @@ class TestOptimizer(unittest.TestCase):
         # Rosenbrock function
         def func(x):
             return 100*(x[1]-x[0]**2)**2+(1-x[0])**2
+
         def grad(x):
             return np.array([-400 * (x[1] - x[0] ** 2) * x[0] - 2 * (1 - x[0]), 200 * (x[1] - x[0] ** 2)])
+
         def hessian(x):
             return np.array([[-400 * (x[1] - x[0] ** 2) + 800 * x[0] ** 2 + 2, -400 * x[0]], [-400 * x[0], 200]])
         self.opt = OptimizationProblem(func)
@@ -34,39 +33,27 @@ class TestOptimizer(unittest.TestCase):
         self.grad = grad
         self.hessian = hessian
 
-
-
     def tearDown(self):
         pass
 
-
-    # Task 7:
-    # Test this seperately from an optimization method on Rosenbrock’s function and use the parameters given on p.37 in
-    # the book mentioned above.
     def test_ls(self):
         """
-        Test the inexact line search method based on the Goldstein/Wolfe conditions
+        Test the inexact line search method based on the Goldstein/Wolfe conditions using parameters given on p.37
+        in Fletcher. Compare the result on p.38 with Wolfe.
 
         :return: --
         """""
 
-        #Parameters given on p.37
+        # Parameters given on p.37
         sigma = 0.1
         rho = 0.01
         alp_0=0.1
         x = np.array([0, 0])
         p = np.array([1,0])
 
-
-
-        alpha_gold = ls.ls_gold(self.func, self.grad, x, p, alp_0, rho)
         alpha_wolfe = ls.ls_wolfe(self.func, self.grad, x, p, alp_0, rho, sigma)
 
-        print('alpha_gold:', alpha_gold, 'alpha_wolfe:', alpha_wolfe)
-
-        print('f:', self.func(np.array([alpha_gold, 0])),'f2:', self.func(np.array([alpha_wolfe,0])))
-
-        #Jämför med svaret p.37
+        # Compare with results p.37
         self.assertAlmostEqual(alpha_wolfe,0.16094,delta=0.3)
 
     def test_newton(self):
@@ -144,16 +131,13 @@ class TestOptimizer(unittest.TestCase):
         np.testing.assert_almost_equal(x_opt_wolfe, np.array([1., 1.]), 6)
         np.testing.assert_almost_equal(x_opt_gold, np.array([1., 1.]), 6)
 
-
-            #Lina och Björn klistra in sina test här
-
     def test_invHessian(self):
         """
         Test quality of approximation of bfgs method of inverse of Hessian for growing k
         :return:
         """
 
-        def calc_H_inv(self,x0):
+        def calc_H_inv(x0):
             maxit = 100
             x = np.copy(x0)
             n = len(x)
@@ -181,17 +165,12 @@ class TestOptimizer(unittest.TestCase):
                 H = np.dot(np.dot(np.identity(n) - rho * np.outer(w, y), H),
                            (np.identity(n) - rho * np.outer(y, w))) + rho * np.outer(w, w)
                 normerr[i] = np.linalg.norm(H - np.linalg.inv(self.hessian(x)))
-                print(H)
-                print(np.linalg.inv(self.hessian(x)))
 
             return H, normerr, x
 
         x0 = np.array([0, 0])
         H_inv, normerr, x_calc = calc_H_inv(x0)
         self.assertAlmostEqual(normerr[-1], 0)
-
-
-
 
 
 if __name__ == '__main__':
