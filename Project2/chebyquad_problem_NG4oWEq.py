@@ -5,13 +5,16 @@ Course material for the course FMNN25
 Version for Python 3.4
 Claus Führer (2016)
 
+Edited by: Fanny Andersson (tna13fan), Louise Sjöholm (tfy13lsj), Lina Sjöstrand (fra12lsj), Björn Ulfwi (tfy13bul)
+(Task 11)
+
 """
 
 from  scipy import dot,linspace
 import scipy.optimize as so
 from numpy import array
 import numpy as np
-from optimizer import Optimizer
+from optimizer import OptimizationProblem
 
 
 def T(x, n):
@@ -82,18 +85,16 @@ def gradchebyquad(x):
     return dot(chq[1:].reshape((1, -1)), UM).reshape((-1, ))
     
 if __name__ == '__main__':
+    # Task 11 - Minimizing chebyquad and compare the results to the results obtained from scipy.optimize.fmin_bfgs
+    # Works for n = 4, for n>4 elements are the same but permuted? Converge to minimum, but maybe a different one.
     x=linspace(0,1,8)
     xmin= so.fmin_bfgs(chebyquad,x,gradchebyquad, disp = False)  # should converge after 18 iterations
+    opt = OptimizationProblem(chebyquad, gradchebyquad)
+    x_opt = opt.newton_solve(x,"bfgs")
+    print(chebyquad(x_opt))
+    print(chebyquad(xmin))
+    print('x_opt:', x_opt, '\nx_teory:', xmin)
 
-#Task 11
-opt = Optimizer(chebyquad_fcn, gradchebyquad)
-#n=4
-x = np.array([0.5, 0.3, 0.6, 0.2])
 
-x_opt = opt.newton_method(x)
 
-xmin_theory = so.fmin_bfgs(chebyquad,x,gradchebyquad, disp = False)
-
-print(xmin_theory)
-print('x_opt:', x_opt, 'x_teory:', xmin_theory)
 
