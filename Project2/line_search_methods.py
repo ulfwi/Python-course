@@ -48,6 +48,8 @@ def ls_exact(func, x, p):
         return func(x+alpha*p)
     alp = 0
     alp = op.fmin(f, alp, args=(x, p), disp=False)
+    if alp < 0:
+        raise ArithmeticError("alpha cannot be negative!")
     return alp
 
 
