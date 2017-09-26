@@ -12,6 +12,11 @@ import line_search_methods as ls
 class OptimizationProblem:
 
     def __init__(self, func, grad=None):
+        """
+        Constructs an Optimization Problem
+        :param func: Function to be minimized
+        :param grad: Gradient of the function
+        """
         if grad is None:
             def grad(x):
                 return self.finite_diff(func, x)
@@ -19,6 +24,13 @@ class OptimizationProblem:
         self.grad = grad
 
     def finite_diff(self, f, x, h=1e-8):
+        """
+        Approximates the gradient of the function f in a point x using finite differences.
+        :param f: Function to be differentiated
+        :param x: Point where the gradient is approximated
+        :param h: Step length used in approximation (optional)
+        :return: Gradient of function f in point x
+        """
         g = np.zeros(x.shape[0])
         for i in range(x.shape[0]):
             x_upper = np.copy(x)
@@ -28,8 +40,41 @@ class OptimizationProblem:
             g[i] = (f(x_upper) - f(x_lower)) / (2 * h)
         return g
 
-    def newton_solve(self, x0, solver = "finiteDiff", line_search = "exact", tol=10 ** -6, maxit = 1000):
-        if solver == "finiteDiff":
+    def calc_hessian(self, x, h = 1e-8):
+        """
+        Approximates the Hessian of the function in a point x using finite differences.
+        :param x: Point where the gradient is approximated
+        :param h: Step length used in approximation (optional)
+        :return: Hessian of the function in point x
+        """
+        n = x.shape[0]
+        hess = np.zeros([n,n])
+        for k in range(n):
+            x_upper = np.copy(x)
+            x_lower = np.copy(x)
+            x_upper[k] += h
+            x_lower[k] -= h
+            g_upper = self.grad(x_upper)
+            g_lower = self.grad(x_lower)
+            hess[k, :] = (g_upper - g_lower) / (2 * h)
+        return hess
+
+    def newton_solve(self, x0, solver = "newton", line_search = "exact", tol=10 ** -6, maxit = 1000):
+        """
+        Finds a minima of the function using either "Newton's method", "BFGS",
+        "DFP", "good Broyden" or "bad Broyden" with either "Exact line search",
+        "Wolfe conditions" or "Goldstein conditions".
+
+        :param x0: Starting point
+        :param solver: Solver to be used when finding the minima. Choose from:
+        "newton", "bfgs", "dfp", "goodBroyden" and "badBroyden".
+        :param line_search: Line search to be used when finding the minima. Choose from:
+        "exact", "wolfe" and "goldstein".
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
+        if solver == "newton":
             return self.newton_method(x0, line_search, tol, maxit)
         elif solver == "bfgs":
             return self.bfgs_method(x0, line_search, tol, maxit)
@@ -41,6 +86,14 @@ class OptimizationProblem:
             return self.bad_broyden_method(x0, line_search,tol, maxit)
 
     def newton_method(self, x0, line_search, tol = 10 ** -6, maxit = 1000):
+        """
+        Finds the minima using Newton's method
+        :param x0: Starting point
+        :param line_search: Line search method to be used
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
         x = np.copy(x0)
 
         for i in range(maxit):
@@ -70,20 +123,15 @@ class OptimizationProblem:
         print("Did not converge. Number of iterations: " + str(i) + "\nFinal error: " + str(la.norm(p)))
         return 1
 
-    def calc_hessian(self, x, h = 1e-8):
-        n = x.shape[0]
-        hess = np.zeros([n,n])
-        for k in range(n):
-            x_upper = np.copy(x)
-            x_lower = np.copy(x)
-            x_upper[k] += h
-            x_lower[k] -= h
-            g_upper = self.grad(x_upper)
-            g_lower = self.grad(x_lower)
-            hess[k, :] = (g_upper - g_lower) / (2 * h)
-        return hess
-
     def bfgs_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        """
+        Finds the minima using BFGS method
+        :param x0: Starting point
+        :param line_search: Line search method to be used
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -112,6 +160,14 @@ class OptimizationProblem:
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(w)))
 
     def dfp_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        """
+        Finds the minima using DFP method
+        :param x0: Starting point
+        :param line_search: Line search method to be used
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
         x = x0
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -138,6 +194,14 @@ class OptimizationProblem:
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(np.norm(s)))
 
     def good_broyden_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        """
+        Finds the minima using good Broyden method
+        :param x0: Starting point
+        :param line_search: Line search method to be used
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
@@ -179,6 +243,14 @@ class OptimizationProblem:
         print('Did not converge. Number of iterations: ' + str(i) + '\nFinal error: ' + str(la.norm(delta)))
 
     def bad_broyden_method(self, x0, line_search, tol=10 ** -6, maxit = 1000):
+        """
+        Finds the minima using bad Broyden method
+        :param x0: Starting point
+        :param line_search: Line search method to be used
+        :param tol: Tolerance for how close to the minima we need to get
+        :param maxit: Maximum number of iterations
+        :return: Minimum point x
+        """
         x = np.copy(x0)
         n = len(x)
         # Initial guess of inverse of Hessian
