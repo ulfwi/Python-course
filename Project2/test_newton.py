@@ -2,8 +2,8 @@ from optimizer import OptimizationProblem
 import numpy as np
 
 
-lb = False
-fl = True
+lb = True
+fl = False
 
 
 # Bjorn Lina
@@ -20,7 +20,7 @@ if lb:
         #return 100 * (x[1] - x[0] ** 2) ** 2 + (1 - x[0]) ** 2
 
     solver = OptimizationProblem(func_rosenbrock, grad_rosenbrock)
-    x_opt = solver.newton_method(np.array([0.,0.]), "finiteDiff", "exact", 10**-6, 1000)
+    x_opt = solver.newton_solve(np.array([0.,0.]), "newton", "exact", 10**-6, 1000)
     print(x_opt)
 
 
