@@ -14,24 +14,33 @@ class DirichletNeumann:
         u1 = np.copy(u01)
         u2 = np.copy(u02)
         u3 = np.copy(u03)
-        n1 = 1./self.dx # length of row/col
-        n2row = 1./self.dx # length of row
-        n2col = 2./self.dx # length of column
-        n3 = 1./self.dx # length of row/col
-        #A1 = np.zeros([n1,n1])
-        # Write separate method to generate A
-        Bdiag = -4*np.eye(n1)
-        Bupper = np.diag([1] * (n1 - 1), 1)
-        Blower = np.diag([1] * (n1 - 1), -1)
-        B1 = Bdiag + Bupper + Blower
-        blist = [B1] * n1 # list of n1 Bs
-        A1 = sp.linalg.block_diag(*blist)
-        Dlower = np.diag(np.ones(n1*(n1-1)), n1)
-        Dupper = np.diag(np.ones(n1*(n1-1)), -n1)
-        A1 += Dupper + Dlower
+        n = 1./self.dx # length of row/col for room 1 and 3, as well as row for room 2 (col=2*n)
 
-        A2 = np.zeros([n2row*n2col,n2row*n2col])
-        A3 = np.zeros([n3**2,n3**2])
+        # create A2 matrix
+        row = np.zeros(2*n**2)
+        row[0] = -4.
+        row[1] = 1.
+        row[n] = 1.
+        A2 = la.toeplitz(row,row)
+
+        # find boundary node indices
+        index_heater = np.arange(n)
+        index_wall = np.arange(n,n*(n-1)+1,n)
+        index_wall.append(np.arange(n*(n+1)-1,2*n**2,n))
+        index_window = np.arange(n*(2*n-1),2*n**2,1)
+        index_gamma1 = np.arange(n**2,(2*n-2)*n+1,n)
+        index_gamma2 = np.arange(2*n-1,(2*n-1)*n,n)
+
+        # dirichlet boundary conditions on wall, windows and internal boundary nodes
+
+
+
+
+
+
+
+
+
 
 
         for i in range(maxit):
