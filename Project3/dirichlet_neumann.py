@@ -1,7 +1,7 @@
 import scipy.linalg as la
 import numpy as np
 from mpi4py import MPI
-import scipy as sp
+from room import Room, RoomOne, RoomTwo, RoomThree
 
 
 class DirichletNeumann:
@@ -10,46 +10,40 @@ class DirichletNeumann:
         self.dx = dx
         self.temp_wall = temp_wall
 
-    def dirichlet_neumann(self, u01, u02, u03, omega=0.8, maxit=10):
-        u1 = np.copy(u01)
-        u2 = np.copy(u02)
-        u3 = np.copy(u03)
-        n = 1./self.dx # length of row/col for room 1 and 3, as well as row for room 2 (col=2*n)
+    def dirichlet_neumann(self, u1, u2, u3, omega=0.8, maxit=10):
 
-        # create A2 matrix
-        row = np.zeros(2*n**2)
-        row[0] = -4.
-        row[1] = 1.
-        row[n] = 1.
-        A2 = la.toeplitz(row,row)
+        N = 1/self.dx # number of square elements.              of row/col for room 1 and 3, as well as row for room 2 (col=2*n)
 
-        # find boundary node indices
-        index_heater = np.arange(n)
-        index_wall = np.arange(n,n*(n-1)+1,n)
-        index_wall.append(np.arange(n*(n+1)-1,2*n**2,n))
-        index_window = np.arange(n*(2*n-1),2*n**2,1)
-        index_gamma1 = np.arange(n**2,(2*n-2)*n+1,n)
-        index_gamma2 = np.arange(2*n-1,(2*n-1)*n,n)
-
-        # dirichlet boundary conditions on wall, windows and internal boundary nodes
-
-
-
-
-
-
-
-
-
-
+        # Create rooms
+        r1 = RoomOne(u1)
+        r2 = RoomTwo(u2)
+        r3 = RoomThree(u3)
 
         for i in range(maxit):
-            pass
+            # Save old u:s
+            u1_old = np.copy(r1.u)
+            u2_old = np.copy(r2.u)
+            u3_old = np.copy(r3.u)
+
+            # Update room 2
+            r2.u = la.solve(r2.a, r2.b)
+
+            # Update room 1 and 3
+            r1.get_b()              # update_b?
+            r3.get_b()
+            r1.u = la.solve(r1.a, r1.b)
+            r3.u = la.solve(r3.a, r3.b)
+
+            # Relaxation
+
 
 
 
     def solve_domain(self):
         pass
+
+
+
 
 
 

@@ -1,61 +1,104 @@
+from abc import ABC, abstractmethod
 
 
-class Room:
+class Room(ABC):
 
-    def __init__(self, room_nbr, u):
-        self.room_nbr = room_nbr
+    @abstractmethod
+    def get_gamma(self):
+        pass
+
+    @abstractmethod
+    def get_b(self):
+        raise NotImplementedError('subclasses must override foo()!')
+
+    @abstractmethod
+    def get_a(self, u):
+        pass
+
+
+class RoomOne(Room):
+
+    def __init__(self, u):
         self.u = u
-        if room_nbr == 1:
-            self.matrix_a = self.matrix_a1(u)
-        elif room_nbr == 2:
-            self.matrix_a = self.matrix_a2(u)
-        else:
-            self.matrix_a = self.matrix_a3(u)
-        self.b = self.get_b()
+        self.gamma = self.get_gamma()
+        self.a = self.get_a(u)
+        self.b = None
 
-    # Matrices
+    def get_gamma(self):
+        pass
 
-    def matrix_a1(self, u):
+    def get_b(self):
+        pass
+
+    def get_a(self, u):
         """
         Matrix describing room 1, having Neumann conditions on GAMMA_1
         :param u: is u1
         :return:
         """
         pass
-        """
-        # create A2 matrix
-        row = np.zeros(2*n**2)
-        row[0] = -4.
-        row[1] = 1.
-        row[n] = 1.
-        A2 = la.toeplitz(row,row)
 
-        # find boundary node indices
-        index_heater = np.arange(n)
-        index_wall = np.arange(n,n*(n-1)+1,n)
-        index_wall.append(np.arange(n*(n+1)-1,2*n**2,n))
-        index_window = np.arange(n*(2*n-1),2*n**2,1)
-        index_gamma1 = np.arange(n**2,(2*n-2)*n+1,n)
-        index_gamma2 = np.arange(2*n-1,(2*n-1)*n,n)
 
-        # dirichlet boundary conditions on wall, windows and internal boundary nodes
-        """
-    def matrix_a2(self, u2):
-        """
-        Matrix describing temperatures in room 2, having Dirichlet conditions on GAMMA_1 and GAMMA_2
-        :param u2:
-        :return:
-        """
-        pass
+class RoomTwo(Room):
 
-    def matrix_a3(self, u3):
-        """
-        Matrix describing room 3, having Neumann conditions on GAMMA_2
-        :param u3:
-        :return:
-        """
+    def __init__(self, u):
+        self.u = u
+        self.gamma = self.get_gamma()
+        self.a = self.get_a(u)
+        self.b = None
+
+    def get_gamma(self):
         pass
 
     def get_b(self):
-        # return different depending on room_nbr
         pass
+
+    def get_a(self, u):
+        """
+        Matrix describing temperatures in room 2, having Dirichlet conditions on GAMMA_1 and GAMMA_2
+        :param u: is u2
+        :return:
+        """
+        pass
+
+
+class RoomThree(Room):
+
+    def __init__(self, u):
+        self.u = u
+        self.gamma = self.get_gamma()
+        self.a = self.get_a(u)
+        self.b = None
+
+    def get_gamma(self):
+        pass
+
+    def get_b(self):
+        pass
+
+    def get_a(self, u):
+        """
+        Matrix describing room 3, having Neumann conditions on GAMMA_2
+        :param u: is u3
+        :return:
+        """
+        pass
+
+
+
+'''
+def __init__(self, room_nbr, u):
+    self.room_nbr = room_nbr
+    self.u = u
+    self.gamma = self.get_gamma()
+    if room_nbr == 1:
+        self.matrix_a = self.matrix_a1(u)
+        self.b = None
+    elif room_nbr == 2:
+        self.matrix_a = self.matrix_a2(u)
+        self.b = self.get_b()
+    else:
+        self.matrix_a = self.matrix_a3(u)
+        self.b = None
+'''
+
