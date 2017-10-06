@@ -42,7 +42,7 @@ class Apartment:
 
             # Update room 1 and 3
             if rank == 0:
-                self.r1.update_b(self.r2.u[self.r2.index_gamma[0]])
+                self.r1.update_b(self.r2.u[self.r2.index_gamma[0] + 1])
                 self.r1.u = la.solve(self.r1.a, self.r1.b)
 
                 # Receive the data from process 1
@@ -50,7 +50,7 @@ class Apartment:
                 self.r3 = self.comm.recv(source=1, tag=0, status=st)
 
             if rank == 1:
-                self.r3.update_b(self.r2.u[self.r2.index_gamma[1]])
+                self.r3.update_b(self.r2.u[self.r2.index_gamma[1] - 1])
                 self.r3.u = la.solve(self.r3.a, self.r3.b)
 
                 # Send the data to process 0
