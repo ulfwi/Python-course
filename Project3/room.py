@@ -129,7 +129,7 @@ class RoomTwo(Room):
 
         Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
-        self.update_b([self.u[self.index_gamma[0]],self.index_gamma[1]])
+        #self.update_b([self.u[self.index_gamma[0]],self.index_gamma[1]])
 
     def get_indices(self):
         n = self.n
