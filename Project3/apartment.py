@@ -87,7 +87,6 @@ class Apartment:
 
             extent = [0, 3, 0, 2]
 
-            plt.clf()
             plt.figure()
             plt.imshow(heatmap, extent=extent, origin='upper')
             plt.colorbar()
