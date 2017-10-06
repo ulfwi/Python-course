@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import scipy.linalg as la
-import plotly as py
-from plotly.graph_objs import *
+#import plotly as py
+#from plotly.graph_objs import *
+import matplotlib.pyplot as plt
 
 
 
 class Room(ABC):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40):
-        self.u = u
+    def __init__(self, dx, temp_wall=15, temp_heater=40):
+        self.n = int(1./dx)
         self.gamma = self.get_gamma()
         self.a = self.get_a()
         self.temp_wall = temp_wall
@@ -39,10 +40,10 @@ class Room(ABC):
 
 class RoomOne(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40, temp_window=5):
-        self.n = int(np.sqrt(len(u)))
+    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40, temp_window=5):
+        Room.__init__(self, dx, temp_wall, temp_heater)
+        self.u = np.ones(self.n ** 2) * temp_init
         self.temp_window = temp_window
-        Room.__init__(self, u, temp_wall, temp_heater)
 
     def get_gamma(self):
         """
@@ -112,22 +113,24 @@ class RoomOne(Room):
 
         return A
 
-    def plot_temp(self):
+    def plot_temp(self, filename='Room_1_plot.html'):
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
-        print(uplot)
-        trace = Heatmap(z=uplot)
-        data = [trace]
-        py.offline.plot(data, filename='Room_1_plot.html')
+        extent = [0, 1, 0, 1] # xmin xmax ymin ymax
+        plt.clf()
+        plt.imshow(uplot, extent=extent, origin='upper')
+        plt.title('Temperature distribution in Room one')
+        plt.show()
+
 
 
 
 class RoomTwo(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40, temp_window=5):
-        self.n = int(np.sqrt(len(u) / 2.))
+    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40, temp_window=5):
         self.temp_window = temp_window
-        Room.__init__(self, u, temp_wall, temp_heater)
+        Room.__init__(self, dx, temp_wall, temp_heater)
+        self.u = np.ones(2 * self.n ** 2)*temp_init
         self.update_b(self.u[self.gamma])
 
     def get_gamma(self):
@@ -195,17 +198,19 @@ class RoomTwo(Room):
     def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(2 * self.n, self.n)
-        print(uplot)
-        trace = Heatmap(z=uplot)
-        data = [trace]
-        py.offline.plot(data, filename='Room_2_plot.html')
+        extent = [0, 1, 0, 1]  # xmin xmax ymin ymax
+        plt.clf()
+        plt.imshow(uplot, extent=extent, origin='upper')
+        plt.title('Temperature distribution in Room two')
+        plt.show()
 
 
 class RoomThree(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40):
-        self.n = int(np.sqrt(len(u)))
-        Room.__init__(self, u, temp_wall, temp_heater)
+    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40):
+        # self.n = int(np.sqrt(len(u)))
+        Room.__init__(self, temp_init, dx, temp_wall, temp_heater)
+        self.u = np.ones(self.n ** 2) * temp_init
 
 
     def get_gamma(self):
@@ -278,9 +283,10 @@ class RoomThree(Room):
     def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
-        print(uplot)
-        trace = Heatmap(z=uplot)
-        data = [trace]
-        py.offline.plot(data, filename='Room_3_plot.html')
+        extent = [0, 1, 0, 1]  # xmin xmax ymin ymax
+        plt.clf()
+        plt.imshow(uplot, extent=extent, origin='upper')
+        plt.title('Temperature distribution in Room three')
+        plt.show()
 
 
