@@ -9,8 +9,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 a = b = c = d = 0
-if c == 0:
-    raise ValueError("hmm.")
+#if c == 0:
+#    raise ValueError("hmm.")
 
 
 if rank == 0:
