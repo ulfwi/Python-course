@@ -2,6 +2,8 @@ import scipy.linalg as la
 import numpy as np
 from mpi4py import MPI
 from room import Room, RoomOne, RoomTwo, RoomThree
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import scipy.linalg as la
-#import plotly as py
-#from plotly.graph_objs import *
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
@@ -67,7 +67,7 @@ class RoomOne(Room):
         index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
 
         b[index_wall] = self.temp_wall
-        b[-1] = self.temp_window # fix temp = 5 at conflict node
+        b[-1] = 5 # fix temp = 5 at conflict node
         b[index_heater] = self.temp_heater
 
         return b
@@ -209,7 +209,7 @@ class RoomThree(Room):
 
     def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40):
         # self.n = int(np.sqrt(len(u)))
-        Room.__init__(self, temp_init, dx, temp_wall, temp_heater)
+        Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = np.ones(self.n ** 2) * temp_init
 
 

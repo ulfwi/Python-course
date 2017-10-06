@@ -1,6 +1,5 @@
 import scipy.linalg as la
 import numpy as np
-import matplotlib.pyplot as plt
 from room import Room, RoomOne, RoomTwo, RoomThree
 from apartment import Apartment
 
