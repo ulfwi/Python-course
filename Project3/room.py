@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-
+import numpy as np
+import scipy.linalg as la
 
 class Room(ABC):
 
@@ -36,7 +37,31 @@ class RoomOne(Room):
         :param u: is u1
         :return:
         """
-        pass
+        n = np.sqrt(len(u))
+
+        # create A matrix
+        row = np.zeros(n ** 2)
+        row[0] = -4.
+        row[1] = 1.
+        row[n] = 1.
+        A = la.toeplitz(row, row)
+
+        # find boundary node indices
+        index_heater = np.arange(n, (n - 2) ** 2 + 1, n)
+        index_wall = np.arange(n)
+        index_wall.append(np.arange(n * (2 * n - 1), 2 * n ** 2))
+        index_gamma = np.arange(2 * n - 1, (n - 1) * n, n)
+        indices = np.array(list(index_heater) + list(index_wall))
+
+        # dirichlet boundary conditions on wall and heater
+        A[indices] = np.zeros(n)
+        A[indices, indices] = 1
+
+        # neumann boundary conditions on internal boundary
+        A[index_gamma, index_gamma] = -3
+        A[index_gamma, index_gamma + 1] = 0
+
+        return A
 
 
 class RoomTwo(Room):
@@ -59,7 +84,29 @@ class RoomTwo(Room):
         :param u: is u2
         :return:
         """
-        pass
+        n = np.sqrt(len(u) / 2.)
+        # create A matrix
+        row = np.zeros(2 * n ** 2)
+        row[0] = -4.
+        row[1] = 1.
+        row[n] = 1.
+        A = la.toeplitz(row, row)
+
+        # find boundary node indices
+        index_heater = np.arange(1, n - 1)
+        index_wall = np.arange(0, n * (n - 1) + 1, n)
+        index_wall.append(np.arange((n ** 2) - 1, (2 * n - 1) * n, n))
+        index_window = np.arange(n * (2 * n - 1), 2 * n ** 2)
+        index_gamma1 = np.arange(n ** 2, (2 * n - 2) * n + 1, n)
+        index_gamma2 = np.arange(2 * n - 1, (n - 1) * n, n)
+        indices = np.array(list(index_heater) + list(index_wall) + list(index_window) +
+                           list(index_gamma1) + list(index_gamma2))
+
+        # dirichlet boundary conditions on wall, heater, windows and internal boundary nodes
+        A[indices] = np.zeros(n)
+        A[indices, indices] = 1
+
+        return A
 
 
 class RoomThree(Room):
@@ -82,7 +129,31 @@ class RoomThree(Room):
         :param u: is u3
         :return:
         """
-        pass
+        n = np.sqrt(len(u))
+
+        # create A matrix
+        row = np.zeros(n ** 2)
+        row[0] = -4.
+        row[1] = 1.
+        row[n] = 1.
+        A = la.toeplitz(row, row)
+
+        # find boundary node indices
+        index_gamma = np.arange(n, (n - 2) ** 2 + 1, n)
+        index_wall = np.arange(n)
+        index_wall.append(np.arange(n * (2 * n - 1), 2 * n ** 2))
+        index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
+        indices = np.array(list(index_heater) + list(index_wall))
+
+        # dirichlet boundary conditions on wall and heater
+        A[indices] = np.zeros(n)
+        A[indices, indices] = 1
+
+        # neumann boundary conditions on internal boundary
+        A[index_gamma, index_gamma] = -3
+        A[index_gamma, index_gamma - 1] = 0
+
+        return A
 
 
 
