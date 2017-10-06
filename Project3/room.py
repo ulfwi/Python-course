@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import scipy.linalg as la
-import plotly as py
-from plotly.graph_objs import *
+#import plotly as py
+#from plotly.graph_objs import *
 
 
 
@@ -31,18 +31,22 @@ class Room(ABC):
     @abstractmethod
     def get_a(self):
         pass
-
+'''
     @abstractmethod
     def plot_temp(self):
         pass
-
+'''
 
 class RoomOne(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40, temp_window=5):
+    def __init__(self, dx=0.05, temp_wall=15, temp_heater=40, temp_init=20, temp_window=5):
+        u = self.init_u(dx, temp_wall, temp_window, temp_heater, temp_init)
         self.n = int(np.sqrt(len(u)))
         self.temp_window = temp_window
         Room.__init__(self, u, temp_wall, temp_heater)
+
+    def init_u(self, dx, temp_wall, temp_window, temp_heater, temp_init):
+        pass
 
     def get_gamma(self):
         """
@@ -111,7 +115,7 @@ class RoomOne(Room):
         A[self.gamma, self.gamma + 1] = 0.
 
         return A
-
+'''
     def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
@@ -119,16 +123,21 @@ class RoomOne(Room):
         trace = Heatmap(z=uplot)
         data = [trace]
         py.offline.plot(data, filename='Room_1_plot.html')
-
+'''
 
 
 class RoomTwo(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40, temp_window=5):
+    def __init__(self, dx=0.05, temp_wall=15, temp_heater=40, temp_init=20, temp_window=5):
+        u = self.init_u(dx, temp_wall, temp_window, temp_heater, temp_init)
         self.n = int(np.sqrt(len(u) / 2.))
         self.temp_window = temp_window
         Room.__init__(self, u, temp_wall, temp_heater)
         self.update_b(self.u[self.gamma])
+
+    def init_u(self, dx, temp_wall, temp_window, temp_heater, temp_init):
+        pass
+
 
     def get_gamma(self):
         """
@@ -191,7 +200,7 @@ class RoomTwo(Room):
         A[indices, indices] = 1
 
         return A
-
+'''
     def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(2 * self.n, self.n)
@@ -200,13 +209,17 @@ class RoomTwo(Room):
         data = [trace]
         py.offline.plot(data, filename='Room_2_plot.html')
 
+'''
 
 class RoomThree(Room):
 
-    def __init__(self, u, temp_wall=15, temp_heater=40):
+    def __init__(self, dx=0.05, temp_wall=15, temp_heater=40, temp_init=20):
+        u = self.init_u(dx, temp_wall, temp_heater, temp_init)
         self.n = int(np.sqrt(len(u)))
         Room.__init__(self, u, temp_wall, temp_heater)
 
+    def init_u(self, dx, temp_wall, temp_heater, temp_init):
+        pass
 
     def get_gamma(self):
         """
@@ -275,6 +288,7 @@ class RoomThree(Room):
 
         return A
 
+'''
     def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
@@ -283,4 +297,4 @@ class RoomThree(Room):
         data = [trace]
         py.offline.plot(data, filename='Room_3_plot.html')
 
-
+'''
