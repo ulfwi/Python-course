@@ -2,6 +2,7 @@ import scipy.linalg as la
 import numpy as np
 from mpi4py import MPI
 from room import Room, RoomOne, RoomTwo, RoomThree
+import matplotlib.pyplot as plt
 
 
 class Apartment:
@@ -59,6 +60,31 @@ class Apartment:
 
     def solve_domain(self):
         pass
+
+    def plot_apartment(self):
+        """
+        Plots a heatmap of the apartment. Areas outside apartment has
+        temperature set to zero degrees to distinguish it from the apartment.
+        :return: ~~
+        """
+        n = self.r1.n
+        outside = np.zeros([n, n])
+        u1 = self.r1.u
+        u2 = self.r2.u
+        u3 = self.r3.u
+        # combining all the rooms temperatures to a matrix
+        heatmap = np.append(outside, u1, axis=0)
+        heatmap = np.append(heatmap, u2, axis=1)
+        room3_temp = np.append(u3, outside, axis=0)
+        heatmap = np.append(heatmap, room3_temp, axis=1)
+
+        extent = [0, 3, 0, 2]
+
+        plt.clf()
+        plt.imshow(heatmap, extent=extent, origin='upper')
+        plt.colorbar()
+        plt.title('Apartment heatmap')
+        plt.show()
 
 
 
