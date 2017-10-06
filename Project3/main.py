@@ -1,4 +1,6 @@
 from mpi4py import MPI
+from room import Room, RoomOne, RoomTwo, RoomThree
+from apartment import Apartment
 
 # =================================================== Main-file =================================================== #
 # kolla deltax = 1 !!!
