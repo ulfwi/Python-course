@@ -4,10 +4,16 @@ import scipy.linalg as la
 import matplotlib.pyplot as plt
 
 
-
 class Room(ABC):
 
-    def __init__(self, dx, temp_wall=15, temp_heater=40):
+    def __init__(self, dx=1./20., temp_wall=15, temp_heater=40):
+        """
+        Abstract room constructor with general class attributes.
+
+        :param dx: grid width
+        :param temp_wall: wall temperature
+        :param temp_heater: heater temperature
+        """
         self.n = int(1./dx)
         self.index_heater, self.index_wall, self.index_gamma = self.get_indices()
         self.a = self.get_a()
@@ -25,7 +31,7 @@ class Room(ABC):
 
     @abstractmethod
     def update_b(self, u):
-        raise NotImplementedError('subclasses must override Room()!')
+        pass
 
     @abstractmethod
     def get_a(self):
@@ -39,10 +45,23 @@ class Room(ABC):
 class RoomOne(Room):
 
     def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40):
+        """
+        Construct a room of type one.
+
+        :param temp_init: initial temperature distribution
+        :param dx: grid width
+        :param temp_wall: wall temperature
+        :param temp_heater: heater temperature
+        """
         Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
 
     def get_indices(self):
+        """
+        Find boundary indices corresponding to wall, heater and internal boundary gamma.
+
+        :return: index_heater, index_wall, index_gamma
+        """
         n = self.n
         index_heater = np.arange(n, (n - 2) * n + 1, n)
         index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
@@ -51,6 +70,12 @@ class RoomOne(Room):
         return index_heater, index_wall, index_gamma
 
     def init_u(self, temp_init):
+        """
+        Initialize constant temperature distribution u using temp_init.
+
+        :param temp_init: initial room temperature
+        :return: u
+        """
         n = self.n
         u = np.ones(n ** 2) * temp_init
         u[self.index_heater] = self.temp_heater
@@ -83,7 +108,7 @@ class RoomOne(Room):
 
     def get_a(self):
         """
-        Matrix describing room 1, having Neumann conditions on GAMMA_1.
+        Matrix describing room one, having Neumann conditions on boundary gamma 1.
 
         :param u: is u1
         :return: matrix A
@@ -111,6 +136,11 @@ class RoomOne(Room):
         return A
 
     def plot_temp(self):
+        """
+        Plots the temperature distribution of the room.
+
+        :return: --
+        """
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
         extent = [0, 1, 0, 1] # xmin xmax ymin ymax
@@ -123,15 +153,28 @@ class RoomOne(Room):
 class RoomTwo(Room):
 
     def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40, temp_window=5):
+        """
+        Construct a room of type two.
+
+        :param temp_init: initial temperature distribution
+        :param dx: grid width
+        :param temp_wall: wall temperature
+        :param temp_heater: heater temperature
+        :param temp_window: window temperature
+        """
         self.temp_window = temp_window
         n = int(1./dx)
         self.index_window = np.arange(n * (2 * n - 1) + 1, 2 * n ** 2 - 1)
 
         Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
-        #self.update_b([self.u[self.index_gamma[0]],self.index_gamma[1]])
 
     def get_indices(self):
+        """
+        Find boundary indices corresponding to wall, heater and internal boundary gamma.
+
+        :return: index_heater, index_wall, index_gamma
+        """
         n = self.n
         index_heater = np.arange(1, n - 1)
         index_wall = np.concatenate((np.arange(0, n ** 2 + 1, n), np.arange((n ** 2) - 1, 2 * n ** 2, n),
@@ -143,6 +186,12 @@ class RoomTwo(Room):
         return index_heater, index_wall, index_gamma
 
     def init_u(self, temp_init):
+        """
+        Initialize constant temperature distribution u using temp_init.
+
+        :param temp_init: initial room temperature
+        :return: u
+        """
         n = self.n
         u = np.ones(2 * self.n ** 2)*temp_init
 
@@ -199,6 +248,11 @@ class RoomTwo(Room):
         return A
 
     def plot_temp(self):
+        """
+        Plots the temperature distribution of the room.
+
+        :return: --
+        """
         uplot = np.copy(self.u)
         uplot.resize(2 * self.n, self.n)
         extent = [0, 1, 0, 1]  # xmin xmax ymin ymax
@@ -210,10 +264,24 @@ class RoomTwo(Room):
 
 class RoomThree(Room):
     def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40):
+        """
+        Construct a room of type three.
+
+        :param temp_init: initial temperature distribution
+        :param dx: grid width
+        :param temp_wall: wall temperature
+        :param temp_heater: heater temperature
+        :param temp_window: window temperature
+        """
         Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
 
     def get_indices(self):
+        """
+        Find boundary indices corresponding to wall, heater and internal boundary gamma.
+
+        :return: index_heater, index_wall, index_gamma
+        """
         n = self.n
         index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
         index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
@@ -222,6 +290,12 @@ class RoomThree(Room):
         return index_heater, index_wall, index_gamma
 
     def init_u(self, temp_init):
+        """
+        Initialize constant temperature distribution u using temp_init.
+
+        :param temp_init: initial room temperature
+        :return: u
+        """
         n = self.n
         u = np.ones(n ** 2) * temp_init
         u[self.index_heater] = self.temp_heater
@@ -252,7 +326,7 @@ class RoomThree(Room):
         :param u2gamma: temperatures u(gamma2 - 1) from room 2
         :return: --
         """
-        grad = self.u[self.index_gamma] - u2gamma
+        grad =  u2gamma - self.u[self.index_gamma]
         self.b[self.index_gamma] = -grad
 
 
@@ -285,6 +359,11 @@ class RoomThree(Room):
         return A
 
     def plot_temp(self):
+        """
+        Plots the temperature distribution in the room.
+
+        :return: --
+        """
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
         extent = [0, 1, 0, 1]  # xmin xmax ymin ymax
