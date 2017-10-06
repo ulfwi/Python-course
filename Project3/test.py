@@ -25,6 +25,9 @@ if rank == 1:
     print('a*b', a * b)
     comm.send(c, dest=0, tag=2)
 
+if rank == 0:
+    time.sleep(2)
+    print('awake')
 
 '''
 #if rank == 0:
@@ -65,15 +68,6 @@ else:
 '''
 
 
-
-'''
-time.sleep(2)
-a = 6
-print(a + b)
-print(a * b)
-a = 10
-print(max(a,b))
-'''
 
 
 
