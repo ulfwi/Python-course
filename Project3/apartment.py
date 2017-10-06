@@ -69,9 +69,12 @@ class Apartment:
         """
         n = self.r1.n
         outside = np.zeros([n, n])
-        u1 = self.r1.u
-        u2 = self.r2.u
-        u3 = self.r3.u
+        u1 = np.copy(self.r1.u)
+        u1.resize(n, n)
+        u2 = np.copy(self.r2.u)
+        u2.resize(2*n, n)
+        u3 = np.copy(self.r3.u)
+        u3.resize(n, n)
         # combining all the rooms temperatures to a matrix
         heatmap = np.append(outside, u1, axis=0)
         heatmap = np.append(heatmap, u2, axis=1)
