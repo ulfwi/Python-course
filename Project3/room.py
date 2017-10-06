@@ -134,9 +134,9 @@ class RoomTwo(Room):
     def get_indices(self):
         n = self.n
         index_heater = np.arange(1, n - 1)
-        index_wall = np.concatenate((np.arange(0, n * (n - 1) + 1, n), np.arange((n ** 2) - 1, 2 * n ** 2, n),
+        index_wall = np.concatenate((np.arange(0, n ** 2 + 1, n), np.arange((n ** 2) - 1, 2 * n ** 2, n),
                                      np.array([n - 1, n * (2 * n - 1)])))
-        index_gamma1 = np.arange(n ** 2, (2 * n - 2) * n + 1, n)
+        index_gamma1 = np.arange(n * (n + 1), (2 * n - 2) * n + 1, n)
         index_gamma2 = np.arange(2 * n - 1, (n - 1) * n, n)
         index_gamma = [index_gamma1, index_gamma2]
 
@@ -217,7 +217,7 @@ class RoomThree(Room):
         n = self.n
         index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
         index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
-        index_gamma = np.arange(n, (n - 2) ** 2 + 1, n)
+        index_gamma = np.arange(n, n * (n - 2) + 1, n)
 
         return index_heater, index_wall, index_gamma
 
