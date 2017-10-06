@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import scipy.linalg as la
-#import plotly as py
-#from plotly.graph_objs import *
 import matplotlib.pyplot as plt
 
 
@@ -11,14 +9,14 @@ class Room(ABC):
 
     def __init__(self, dx, temp_wall=15, temp_heater=40):
         self.n = int(1./dx)
-        self.gamma = self.get_gamma()
+        self.index_heater, self.index_wall, self.index_gamma = self.get_indices()
         self.a = self.get_a()
         self.temp_wall = temp_wall
         self.temp_heater = temp_heater
         self.b = self.get_b()
 
     @abstractmethod
-    def get_gamma(self):
+    def get_indices(self):
         pass
 
     @abstractmethod
@@ -40,19 +38,24 @@ class Room(ABC):
 
 class RoomOne(Room):
 
-    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40, temp_window=5):
+    def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40):
         Room.__init__(self, dx, temp_wall, temp_heater)
-        self.u = np.ones(self.n ** 2) * temp_init
-        self.temp_window = temp_window
+        self.u = self.init_u(temp_init)
 
-    def get_gamma(self):
-        """
-        Calculates indices of internal boundary nodes.
-
-        :return: indices of internal boundary nodes
-        """
+    def get_indices(self):
         n = self.n
-        return np.arange(2 * n - 1, (n - 1) * n, n)
+        index_heater = np.arange(n, (n - 2) * n + 1, n)
+        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
+        index_gamma = np.arange(2 * n - 1, (n - 1) * n, n)
+
+        return index_heater, index_wall, index_gamma
+
+    def init_u(self, temp_init):
+        n = self.n
+        u = np.ones(n ** 2) * temp_init
+        u[self.index_heater] = self.temp_heater
+        u[self.index_wall] = self.temp_wall
+        return u
 
     def get_b(self):
         """
@@ -63,12 +66,8 @@ class RoomOne(Room):
         n = self.n
         b = np.zeros(n ** 2)
 
-        index_heater = np.arange(n, (n - 2) ** 2 + 1, n)
-        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
-
-        b[index_wall] = self.temp_wall
-        b[-1] = self.temp_window # fix temp = 5 at conflict node
-        b[index_heater] = self.temp_heater
+        b[self.index_wall] = self.temp_wall
+        b[self.index_heater] = self.temp_heater
 
         return b
 
@@ -79,8 +78,8 @@ class RoomOne(Room):
         :param u2gamma: temperatures u(gamma1 + 1) from room 2
         :return: --
         """
-        grad = u2gamma - self.u[self.gamma]
-        self.b[self.gamma] = -grad
+        grad = u2gamma - self.u[self.index_gamma]
+        self.b[self.index_gamma] = -grad
 
     def get_a(self):
         """
@@ -99,21 +98,19 @@ class RoomOne(Room):
         A = la.toeplitz(row, row)
 
         # find boundary node indices
-        index_heater = np.arange(n, (n - 2) ** 2 + 1, n)
-        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
-        indices = np.array(list(index_heater) + list(index_wall))
+        indices = np.array(list(self.index_heater) + list(self.index_wall))
 
         # dirichlet boundary conditions on wall and heater
         A[indices] = np.zeros(n ** 2)
         A[indices, indices] = 1.
 
         # neumann boundary conditions on internal boundary
-        A[self.gamma, self.gamma] = -3.
-        A[self.gamma, self.gamma + 1] = 0.
+        A[self.index_gamma, self.index_gamma] = -3.
+        A[self.index_gamma, self.index_gamma + 1] = 0.
 
         return A
 
-    def plot_temp(self, filename='Room_1_plot.html'):
+    def plot_temp(self):
         uplot = np.copy(self.u)
         uplot.resize(self.n, self.n)
         extent = [0, 1, 0, 1] # xmin xmax ymin ymax
@@ -123,26 +120,36 @@ class RoomOne(Room):
         plt.show()
 
 
-
-
 class RoomTwo(Room):
 
-    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40, temp_window=5):
+    def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40, temp_window=5):
         self.temp_window = temp_window
+        n = int(1./dx)
+        self.index_window = np.arange(n * (2 * n - 1) + 1, 2 * n ** 2 - 1)
+
         Room.__init__(self, dx, temp_wall, temp_heater)
-        self.u = np.ones(2 * self.n ** 2)*temp_init
-        self.update_b(self.u[self.gamma])
+        self.u = self.init_u(temp_init)
+        self.update_b([self.u[self.index_gamma[0]],self.index_gamma[1]])
 
-    def get_gamma(self):
-        """
-        Calculates indices of internal boundary nodes.
-
-        :return: indices of internal boundary nodes
-        """
+    def get_indices(self):
         n = self.n
+        index_heater = np.arange(1, n - 1)
+        index_wall = np.concatenate((np.arange(0, n * (n - 1) + 1, n), np.arange((n ** 2) - 1, 2 * n ** 2, n),
+                                     np.array([n - 1, n * (2 * n - 1)])))
         index_gamma1 = np.arange(n ** 2, (2 * n - 2) * n + 1, n)
         index_gamma2 = np.arange(2 * n - 1, (n - 1) * n, n)
-        return np.append(index_gamma1, index_gamma2)
+        index_gamma = [index_gamma1, index_gamma2]
+
+        return index_heater, index_wall, index_gamma
+
+    def init_u(self, temp_init):
+        n = self.n
+        u = np.ones(2 * self.n ** 2)*temp_init
+
+        u[self.index_heater] = self.temp_heater
+        u[self.index_wall] = self.temp_wall
+        u[self.index_window] = self.temp_window
+        return u
 
     def get_b(self):
         """
@@ -151,13 +158,10 @@ class RoomTwo(Room):
         :return: b: Right hand side
         """
         n = self.n
-        index_heater = np.arange(1, n - 1)
-        index_wall = np.append(np.arange(0, n * (n - 1) + 1, n), np.arange((n ** 2) - 1, (2 * n - 1) * n, n))
-        index_window = np.arange(n * (2 * n - 1), 2 * n ** 2)
         b = np.zeros(2 * n ** 2)
-        b[index_wall] = self.temp_wall
-        b[index_heater] = self.temp_heater
-        b[index_window] = self.temp_window
+        b[self.index_wall] = self.temp_wall
+        b[self.index_heater] = self.temp_heater
+        b[self.index_window] = self.temp_window
         return b
 
     def update_b(self, ugamma):
@@ -166,7 +170,8 @@ class RoomTwo(Room):
 
         :param ugamma: known temperatures on internal boundaries from adjacent rooms
         """
-        self.b[self.gamma] = ugamma
+        self.b[self.index_gamma[0]] = ugamma[0]
+        self.b[self.index_gamma[1]] = ugamma[1]
 
     def get_a(self):
         """
@@ -183,11 +188,9 @@ class RoomTwo(Room):
         A = la.toeplitz(row, row)
 
         # find boundary node indices
-        index_heater = np.arange(1, n - 1)
-        index_wall = np.append(np.arange(0, n * (n - 1) + 1, n), np.arange((n ** 2) - 1, (2 * n - 1) * n, n))
-        index_window = np.arange(n * (2 * n - 1), 2 * n ** 2)
-        indices = np.array(list(index_heater) + list(index_wall) + list(index_window) +
-                           list(self.gamma))
+
+        indices = np.array(list(self.index_heater) + list(self.index_wall) + list(self.index_window)
+                           + list(self.index_gamma[0]) + list(self.index_gamma[1]))
 
         # dirichlet boundary conditions on wall, heater, windows and internal boundary nodes
         A[indices] = np.zeros(2 * n ** 2)
@@ -206,21 +209,27 @@ class RoomTwo(Room):
 
 
 class RoomThree(Room):
+    def __init__(self, temp_init=20, dx=1./20., temp_wall=15, temp_heater=40):
+        Room.__init__(self, dx, temp_wall, temp_heater)
+        self.u = self.init_u(temp_init)
 
-    def __init__(self, temp_init, dx, temp_wall=15, temp_heater=40):
-        # self.n = int(np.sqrt(len(u)))
-        Room.__init__(self, temp_init, dx, temp_wall, temp_heater)
-        self.u = np.ones(self.n ** 2) * temp_init
-
-
-    def get_gamma(self):
-        """
-        Calculates indices of internal boundary nodes.
-
-        :return: indices of internal boundary nodes
-        """
+    def get_indices(self):
         n = self.n
-        return np.arange(n, (n - 2) ** 2 + 1, n)
+        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
+        index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
+        index_gamma = np.arange(n, (n - 2) ** 2 + 1, n)
+
+        return index_heater, index_wall, index_gamma
+
+    def init_u(self, temp_init):
+        n = self.n
+        u = np.ones(n ** 2) * temp_init
+        u[self.index_heater] = self.temp_heater
+        u[self.index_wall] = self.temp_wall
+        return u
+
+
+
 
     def get_b(self):
         """
@@ -231,10 +240,8 @@ class RoomThree(Room):
         n = self.n
         b = np.zeros(n ** 2)
         # Find boundary node indices
-        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
-        index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
-        b[index_wall] = self.temp_wall
-        b[index_heater] = self.temp_heater
+        b[self.index_wall] = self.temp_wall
+        b[self.index_heater] = self.temp_heater
         # let gamma nodes be unknown in constructor
         return b
 
@@ -245,8 +252,8 @@ class RoomThree(Room):
         :param u2gamma: temperatures u(gamma2 - 1) from room 2
         :return: --
         """
-        grad = self.u[self.gamma] - u2gamma
-        self.b[self.gamma] = -grad
+        grad = self.u[self.index_gamma] - u2gamma
+        self.b[self.index_gamma] = -grad
 
 
     def get_a(self):
@@ -265,18 +272,15 @@ class RoomThree(Room):
         A = la.toeplitz(row, row)
 
         # find boundary node indices
-        index_gamma = self.get_gamma()
-        index_wall = np.append(np.arange(n), np.arange(n * (n - 1), n ** 2))
-        index_heater = np.arange(2 * n - 1, (n - 1) * n, n)
-        indices = np.array(list(index_heater) + list(index_wall))
+        indices = np.array(list(self.index_heater) + list(self.index_wall))
 
         # dirichlet boundary conditions on wall and heater
         A[indices] = np.zeros(n ** 2)
         A[indices, indices] = 1
 
         # neumann boundary conditions on internal boundary
-        A[index_gamma, index_gamma] = -3
-        A[index_gamma, index_gamma - 1] = 0
+        A[self.index_gamma, self.index_gamma] = -3
+        A[self.index_gamma, self.index_gamma - 1] = 0
 
         return A
 
