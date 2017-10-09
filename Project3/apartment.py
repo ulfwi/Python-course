@@ -19,6 +19,9 @@ class Apartment:
         if self.comm.Get_size() != 2:
             raise ValueError("The rank-size must be two")
 
+        if not r1.n == r2.n == r3.n:
+            raise ValueError("The rooms must have the same discretization dx")
+
     def dirichlet_neumann(self, maxit=10):
         """
         Iterates maxit times solving the heat equation using the method dirichlet-neumann.
