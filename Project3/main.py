@@ -52,7 +52,7 @@ if task == 1:
 
 if task == 2 or task == 3:
     # Mesh size
-    dx = 1. / 20
+    dx = 1/2
 
     # Create rooms
     r1 = RoomOne(10, dx)
@@ -79,7 +79,7 @@ if task == 2 or task == 3:
 if task == 4:
 
     # Mesh size
-    dx = 1. / 10
+    dx = 1/10
 
     # Create rooms
     r1 = RoomOne(2, dx)
