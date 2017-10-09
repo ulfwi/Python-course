@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import scipy.linalg as la
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-
 
 
 class Room(ABC):

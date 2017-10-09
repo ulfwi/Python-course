@@ -24,11 +24,11 @@ from apartment import Apartment
 print('hej')
 # To create rooms
 dx = 1. / 3
-r1 = RoomOne(20, dx, temp_wall=15, temp_heater=40, temp_window=5)
+r1 = RoomOne(20, dx)
 print('room1')
-r2 = RoomTwo(20, dx, temp_wall=15, temp_heater=40, temp_window=5)
+r2 = RoomTwo(20, dx)
 print('room2')
-r3 = RoomThree(20, dx, temp_wall=15, temp_heater=40)
+r3 = RoomThree(20, dx)
 print('room3')
 
 flat = Apartment(r1, r2, r3)
