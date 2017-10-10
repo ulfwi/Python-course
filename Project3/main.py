@@ -1,6 +1,7 @@
 from mpi4py import MPI
 from room import Room, RoomOne, RoomTwo, RoomThree
 from apartment import Apartment
+import numpy as np
 
 
 class RunMain:
@@ -9,13 +10,6 @@ class RunMain:
         pass
 
 # =================================================== Main-file =================================================== #
-
-
-def main():
-    """
-    Main-file where each task can be executed one at a time.
-    Run main-file by typing "mpiexec -n 2 python main.py"
-    """
 
     # Defining mpi
     comm = MPI.COMM_WORLD
@@ -62,12 +56,12 @@ def main():
 
     if task == 2 or task == 3:
         # Mesh size
-        dx = 1/2
+        dx = 1/20
 
         # Create rooms
-        r1 = RoomOne(10, dx)
+        r1 = RoomOne(20, dx)
         r2 = RoomTwo(20, dx)
-        r3 = RoomThree(25, dx)
+        r3 = RoomThree(20, dx)
 
         # Create apartment
         flat = Apartment(r1, r2, r3)
@@ -76,6 +70,9 @@ def main():
         flat.dirichlet_neumann()
 
         if rank == 0:
+            # Calculate mean temperature
+            u_mean = np.mean(np.concatenate((flat.r1.u, flat.r2.u, flat.r3.u)))
+            print('Mean temperature: ' + str(u_mean))
             # Plot apartment
             flat.plot_apartment()
 
@@ -90,11 +87,13 @@ def main():
 
         # Mesh size
         dx = 1/30
+        temp_wall=15
+        temp_window=-10
 
         # Create rooms
-        r1 = RoomOne(10, dx, temp_wall=15, temp_heater=30)
-        r2 = RoomTwo(20, dx, temp_wall=15, temp_heater=40, temp_window=-10)
-        r3 = RoomThree(25, dx, temp_wall=15, temp_heater=50)
+        r1 = RoomOne(temp_init=10, dx, temp_wall, temp_heater=30)
+        r2 = RoomTwo(temp_init=20, dx, temp_wall, temp_heater=40, temp_window)
+        r3 = RoomThree(temp_init=25, dx, temp_wall, temp_heater=50)
 
 
         # Create apartment
@@ -104,6 +103,10 @@ def main():
         flat.dirichlet_neumann()
 
         if rank == 0:
+            # Calculate mean temperature
+            u_mean = np.mean(np.concatenate((flat.r1.u, flat.r2.u, flat.r3.u)))
+            print('Mean temperature: ' + str(u_mean))
+
             # Plot apartment
             flat.plot_apartment()
 

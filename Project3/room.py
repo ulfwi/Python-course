@@ -6,13 +6,15 @@ import scipy.linalg as la
 
 class Room(ABC):
 
-    def __init__(self, temp_wall=15, temp_heater=40):
+    def __init__(self, dx, temp_wall=15, temp_heater=40):
         """
         Abstract room constructor with general class attributes.
 
         :param temp_wall: wall temperature
         :param temp_heater: heater temperature
         """
+        if dx > 1:
+            raise ValueError("The grid width must be smaller than 1 (the length of the room)")
         self.a = self.get_a()
         self.temp_wall = temp_wall
         self.temp_heater = temp_heater
@@ -46,9 +48,9 @@ class RoomOne(Room):
         :param temp_wall: wall temperature
         :param temp_heater: heater temperature
         """
-        self.n = int(1./dx)
+        self.n = int(1./dx) + 1
         self.index_heater, self.index_wall, self.index_gamma = self.get_boundaries()
-        Room.__init__(self, temp_wall, temp_heater)
+        Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
 
     def get_boundaries(self):
@@ -156,10 +158,10 @@ class RoomTwo(Room):
         :param temp_heater: heater temperature
         :param temp_window: window temperature
         """
-        self.n = int(1./dx)
+        self.n = int(1./dx) + 1
         self.index_heater, self.index_wall, self.index_gamma, self.index_window = self.get_boundaries()
         self.temp_window = temp_window
-        Room.__init__(self, temp_wall, temp_heater)
+        Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
 
     def get_boundaries(self):
@@ -266,9 +268,9 @@ class RoomThree(Room):
         :param temp_wall: wall temperature
         :param temp_heater: heater temperature
         """
-        self.n = int(1./dx)
+        self.n = int(1./dx) + 1
         self.index_heater, self.index_wall, self.index_gamma = self.get_boundaries()
-        Room.__init__(self, temp_wall, temp_heater)
+        Room.__init__(self, dx, temp_wall, temp_heater)
         self.u = self.init_u(temp_init)
 
     def get_boundaries(self):

@@ -1,0 +1,469 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Welcome to Project 3 - Apartment Heating’s documentation! &#8212; Project 3 - Apartment Heating 0.9 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-project-3-apartment-heating-s-documentation">
+<h1>Welcome to Project 3 - Apartment Heating’s documentation!<a class="headerlink" href="#welcome-to-project-3-apartment-heating-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-room"></span><dl class="class">
+<dt id="room.RoomOne">
+<em class="property">class </em><code class="descclassname">room.</code><code class="descname">RoomOne</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">room.Room</span></code></p>
+<dl class="method">
+<dt id="room.RoomOne.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a room of type one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>temp_init</strong> – initial temperature distribution (constant)</li>
+<li><strong>dx</strong> – grid width</li>
+<li><strong>temp_wall</strong> – wall temperature</li>
+<li><strong>temp_heater</strong> – heater temperature</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomOne.get_a">
+<code class="descname">get_a</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.get_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix describing discretized heat eq in room one, having Neumann conditions on boundary gamma 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">matrix A</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomOne.get_b">
+<code class="descname">get_b</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.get_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates right hand side b using fixed Dirichlet boundary conditions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">b</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomOne.get_boundaries">
+<code class="descname">get_boundaries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.get_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find boundary indices corresponding to wall, heater and internal boundary gamma.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">index_heater, index_wall, index_gamma</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomOne.init_u">
+<code class="descname">init_u</code><span class="sig-paren">(</span><em>temp_init</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.init_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize constant temperature distribution u using temperature temp_init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp_init</strong> – initial room temperature</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">u</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomOne.update_b">
+<code class="descname">update_b</code><span class="sig-paren">(</span><em>u2gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomOne.update_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates b on internal boundary using Neumann conditions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>u2gamma</strong> – temperatures u(gamma1 + 1) from room 2</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">–</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="room.RoomTwo">
+<em class="property">class </em><code class="descclassname">room.</code><code class="descname">RoomTwo</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em>, <em>temp_window=5</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">room.Room</span></code></p>
+<dl class="method">
+<dt id="room.RoomTwo.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em>, <em>temp_window=5</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a room of type two.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>temp_init</strong> – initial temperature distribution</li>
+<li><strong>dx</strong> – grid width</li>
+<li><strong>temp_wall</strong> – wall temperature</li>
+<li><strong>temp_heater</strong> – heater temperature</li>
+<li><strong>temp_window</strong> – window temperature</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomTwo.get_a">
+<code class="descname">get_a</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.get_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix describing discretized heat eq in room two, having Dirichlet conditions on GAMMA_1 and GAMMA_2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">matrix A</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomTwo.get_b">
+<code class="descname">get_b</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.get_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct b array using constant Dirichlet conditions on external boundaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">b</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomTwo.get_boundaries">
+<code class="descname">get_boundaries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.get_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find boundary indices corresponding to wall, window, heater and internal boundary gamma.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">index_heater, index_wall, index_gamma, index_window</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomTwo.init_u">
+<code class="descname">init_u</code><span class="sig-paren">(</span><em>temp_init</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.init_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize constant temperature distribution u using temperature temp_init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp_init</strong> – initial room temperature</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">u</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomTwo.update_b">
+<code class="descname">update_b</code><span class="sig-paren">(</span><em>ugamma</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomTwo.update_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update b on internal boundaries gamma 1 and gamma 2 using Dirichlet conditions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ugamma</strong> – known temperatures on internal boundaries from adjacent rooms</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="room.RoomThree">
+<em class="property">class </em><code class="descclassname">room.</code><code class="descname">RoomThree</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">room.Room</span></code></p>
+<dl class="method">
+<dt id="room.RoomThree.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>temp_init=20</em>, <em>dx=0.05</em>, <em>temp_wall=15</em>, <em>temp_heater=40</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a room of type three.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>temp_init</strong> – initial temperature distribution</li>
+<li><strong>dx</strong> – grid width</li>
+<li><strong>temp_wall</strong> – wall temperature</li>
+<li><strong>temp_heater</strong> – heater temperature</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomThree.get_a">
+<code class="descname">get_a</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.get_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix describing discretized heat eq in room three, having Neumann conditions on GAMMA_2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">matrix A</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomThree.get_b">
+<code class="descname">get_b</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.get_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct b array using constant Dirichlet conditions on external boundaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">b</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomThree.get_boundaries">
+<code class="descname">get_boundaries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.get_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find boundary indices corresponding to wall, heater and internal boundary gamma.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">index_heater, index_wall, index_gamma</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomThree.init_u">
+<code class="descname">init_u</code><span class="sig-paren">(</span><em>temp_init</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.init_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize constant temperature distribution u using temp_init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temp_init</strong> – initial room temperature</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">u</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="room.RoomThree.update_b">
+<code class="descname">update_b</code><span class="sig-paren">(</span><em>u2gamma</em><span class="sig-paren">)</span><a class="headerlink" href="#room.RoomThree.update_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update b on internal boundary using Neumann conditions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>u2gamma</strong> – temperatures u(gamma2 - 1) from room 2</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">–</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-apartment"></span><dl class="class">
+<dt id="apartment.Apartment">
+<em class="property">class </em><code class="descclassname">apartment.</code><code class="descname">Apartment</code><span class="sig-paren">(</span><em>r1</em>, <em>r2</em>, <em>r3</em><span class="sig-paren">)</span><a class="headerlink" href="#apartment.Apartment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="apartment.Apartment.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>r1</em>, <em>r2</em>, <em>r3</em><span class="sig-paren">)</span><a class="headerlink" href="#apartment.Apartment.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs an apartment consisting of three rooms of type RoomOne, RoomTwo and RoomThree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>r1</strong> – room of type RoomOne</li>
+<li><strong>r2</strong> – room of type RoomTwo</li>
+<li><strong>r3</strong> – room of type RoomThree</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="apartment.Apartment.dirichlet_neumann">
+<code class="descname">dirichlet_neumann</code><span class="sig-paren">(</span><em>maxit=10</em>, <em>omega=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#apartment.Apartment.dirichlet_neumann" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates maxit times solving the heat equation using the method dirichlet-neumann.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>maxit</strong> – number of iterations</li>
+<li><strong>omega</strong> – relaxation parameter</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>–</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="apartment.Apartment.plot_apartment">
+<code class="descname">plot_apartment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apartment.Apartment.plot_apartment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a heatmap of the apartment. Areas outside apartment has
+temperature set to zero degrees to distinguish it from the apartment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">–</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Project 3 - Apartment Heating</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Fanny Andersson (tna13fan), Louise Sjöholm (tfy13lsj), Lina Sjöstrand (fra12lsj), Björn Ulfwi (tfy13bul).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

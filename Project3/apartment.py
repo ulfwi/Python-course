@@ -8,11 +8,17 @@ import matplotlib.pyplot as plt
 
 class Apartment:
 
-    def __init__(self, r1, r2, r3, omega=0.8):
+    def __init__(self, r1, r2, r3):
+        """
+        Constructs an apartment consisting of three rooms of type RoomOne, RoomTwo and RoomThree
+
+        :param r1: room of type RoomOne
+        :param r2: room of type RoomTwo
+        :param r3: room of type RoomThree
+        """
         self.r1 = r1
         self.r2 = r2
         self.r3 = r3
-        self.omega = omega
         self.comm = MPI.COMM_WORLD
 
         # Make sure two kernels (?!) are used
@@ -22,11 +28,12 @@ class Apartment:
         if not r1.n == r2.n == r3.n:
             raise ValueError("The rooms must have the same discretization dx")
 
-    def dirichlet_neumann(self, maxit=10):
+    def dirichlet_neumann(self, maxit=10, omega=0.8):
         """
         Iterates maxit times solving the heat equation using the method dirichlet-neumann.
 
         :param maxit: number of iterations
+        :param omega: relaxation parameter
         :return: --
         """
 
@@ -60,10 +67,9 @@ class Apartment:
                 self.comm.send(self.r3, dest=0, tag=0)
 
             # Relaxation
-            self.r1.u = self.omega * self.r1.u + (1 - self.omega) * u1_old
-            self.r2.u = self.omega * self.r2.u + (1 - self.omega) * u2_old
-            self.r3.u = self.omega * self.r3.u + (1 - self.omega) * u3_old
-            "::"
+            self.r1.u = omega * self.r1.u + (1 - omega) * u1_old
+            self.r2.u = omega * self.r2.u + (1 - omega) * u2_old
+            self.r3.u = omega * self.r3.u + (1 - omega) * u3_old
 
     def plot_apartment(self):
         """
