@@ -1,10 +1,17 @@
+
 ==================================================== Sphinx guide ====================================================
+
+OBS: If something has been changed and just needs to be updated go to step 4).
+
+-----------------------------------------------------------------------------------------------------------------------
+1)
 
 In Project3 type:
 
 Fannys-MacBook-Pro:Project3 fannyandersson$ sphinx-apidoc . --full -o docs -H 'Project3' -A 'Project3' -V '1.0'
 
 -----------------------------------------------------------------------------------------------------------------------
+2)
 
 Open config.py in docs directory and change from:
 
@@ -20,12 +27,14 @@ import sys
 sys.path.insert(0, os.path.abspath('../'))
 
 -----------------------------------------------------------------------------------------------------------------------
+3)
 
 Then type
 
 Fannys-MacBook-Pro:Project3 fannyandersson$ sphinx-build -b html docs docs/_build
 
 -----------------------------------------------------------------------------------------------------------------------
+4)
 
 If something has been changed and needs to be updated in htlm, run:
 
@@ -34,6 +43,7 @@ Fannys-MacBook-Pro:Project3 fannyandersson$ sphinx-build -b html docs docs/_buil
 again.
 
 -----------------------------------------------------------------------------------------------------------------------
+5)
 
 To open html in browser open index.html in docs/_build and click on preferred browser icon.
 
