@@ -11,6 +11,13 @@ class RunMain:
 
 # =================================================== Main-file =================================================== #
 
+
+def main():
+    """
+    Main-file where each task can be executed one at a time.
+    Run main-file by typing “mpiexec -n 2 python main.py”
+    """
+
     # Defining mpi
     comm = MPI.COMM_WORLD
     rank = MPI.COMM_WORLD.Get_rank()
@@ -70,31 +77,24 @@ class RunMain:
         flat.dirichlet_neumann()
 
         if rank == 0:
+
             # Calculate mean temperature
             u_mean = np.mean(np.concatenate((flat.r1.u, flat.r2.u, flat.r3.u)))
             print('Mean temperature: ' + str(u_mean))
+
             # Plot apartment
             flat.plot_apartment()
 
 # ---------------------------------------------------- Task 4 ----------------------------------------------------- #
 
-
-    # Optional assignment
-
-    # Try other initial temperatures
+    # Optional assignment - try other initial temperatures
 
     if task == 4:
 
-        # Mesh size
-        dx = 1/30
-        temp_wall=15
-        temp_window=-10
-
         # Create rooms
-        r1 = RoomOne(temp_init=10, dx, temp_wall, temp_heater=30)
-        r2 = RoomTwo(temp_init=20, dx, temp_wall, temp_heater=40, temp_window)
-        r3 = RoomThree(temp_init=25, dx, temp_wall, temp_heater=50)
-
+        r1 = RoomOne(temp_init=10, dx=1/30, temp_wall=15, temp_heater=30)
+        r2 = RoomTwo(temp_init=20, dx=1/30, temp_wall=15, temp_heater=40, temp_window=-10)
+        r3 = RoomThree(temp_init=25, dx=1/30, temp_wall=15, temp_heater=50)
 
         # Create apartment
         flat = Apartment(r1, r2, r3)
@@ -103,6 +103,7 @@ class RunMain:
         flat.dirichlet_neumann()
 
         if rank == 0:
+
             # Calculate mean temperature
             u_mean = np.mean(np.concatenate((flat.r1.u, flat.r2.u, flat.r3.u)))
             print('Mean temperature: ' + str(u_mean))
