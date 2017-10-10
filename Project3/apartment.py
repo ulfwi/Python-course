@@ -63,6 +63,7 @@ class Apartment:
             self.r1.u = self.omega * self.r1.u + (1 - self.omega) * u1_old
             self.r2.u = self.omega * self.r2.u + (1 - self.omega) * u2_old
             self.r3.u = self.omega * self.r3.u + (1 - self.omega) * u3_old
+            "::"
 
     def plot_apartment(self):
         """
@@ -74,7 +75,7 @@ class Apartment:
         rank = self.comm.Get_rank()
         if rank == 0:
             n = self.r1.n
-            outside = np.zeros([n, n])
+            outside = np.ones([n, n])*(self.r2.temp_window - 5)  # assume 5 degrees colder outside than window_temp
             u1 = np.copy(self.r1.u)
             u1.resize(n, n)
             u2 = np.copy(self.r2.u)
